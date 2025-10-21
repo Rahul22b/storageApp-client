@@ -95,7 +95,10 @@ function DirectoryView() {
 
   function handleRowClick(type, id) {
     if (type === "directory") navigate(`/directory/${id}`);
-    else window.location.href = `http://localhost:4000/file/${id}`;
+    else
+      window.location.href = `${
+        import.meta.env.VITE_BACKEND_BASE_URL
+      }/file/${id}`;
   }
 
   function handleFileSelect(e) {
@@ -126,17 +129,20 @@ function DirectoryView() {
     startUpload(tempItem);
   }
 
-async  function getsignedUrl(item) {
-   return fetch(`http://localhost:4000/file/initiate/${dirId || " "}`, {
-      method: "POST",
-      headers: {
-        type:item.file.type,
-        filename: item.name,
-        filesize: item.size,
-      },
-      body:item,
-      credentials:"include"
-    })
+  async function getsignedUrl(item) {
+    return fetch(
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/file/initiate/${dirId || " "}`,
+      {
+        method: "POST",
+        headers: {
+          type: item.file.type,
+          filename: item.name,
+          filesize: item.size,
+        },
+        body: item,
+        credentials: "include",
+      }
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -148,8 +154,8 @@ async  function getsignedUrl(item) {
       });
   }
 
- async function startUpload(item) {
-   const {url,fileId}=await getsignedUrl(item);
+  async function startUpload(item) {
+    const { url, fileId } = await getsignedUrl(item);
     const xhr = new XMLHttpRequest();
     xhrRef.current = xhr;
     xhr.open("PUT", url);
@@ -160,22 +166,23 @@ async  function getsignedUrl(item) {
       }
     });
 
-    xhr.onload =async () => {
-if(xhr.status==200){
-    await  fetch("http://localhost:4000/file/upload/check",{
-          method:'POST',
-             headers: {
-                'Content-Type': 'application/json'
+    xhr.onload = async () => {
+      if (xhr.status == 200) {
+        await fetch(
+          `${import.meta.env.VITE_BACKEND_BASE_URL}/file/upload/check`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
             },
-          body:JSON.stringify({'fileId':fileId}),
-          credentials:'include'
-        })
-}
+            body: JSON.stringify({ fileId: fileId }),
+            credentials: "include",
+          }
+        );
+      }
 
       setUploadItem(null);
       loadDirectory();
-     
-
     };
 
     xhr.onerror = () => {
@@ -187,8 +194,6 @@ if(xhr.status==200){
 
     xhr.send(item.file);
   }
-
-
 
   function handleCancelUpload(tempId) {
     if (uploadItem && uploadItem.id === tempId && xhrRef.current) {
