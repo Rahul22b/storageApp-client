@@ -109,6 +109,9 @@ const Login = () => {
           useOneTap
         />
       </div>
+      <p className="text-center text-sm text-gray-600 space-y-2 mt-3">
+        please ensure that your cookie preference is set to "Allow all cookies" to use Google login.
+      </p>
     </div>
   );
 };
