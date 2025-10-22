@@ -6,8 +6,8 @@ import { loginUser } from "./api/userApi";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: "procodrr@gmail.com",
-    password: "abcd",
+    email: "",
+    password: "",
   });
   const [serverError, setServerError] = useState("");
   const navigate = useNavigate();
