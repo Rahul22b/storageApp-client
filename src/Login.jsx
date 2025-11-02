@@ -11,6 +11,7 @@ const Login = () => {
   });
   const [serverError, setServerError] = useState("");
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,6 +21,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const data = await loginUser(formData);
       if (data.error) setServerError(data.error);
@@ -27,91 +29,116 @@ const Login = () => {
     } catch (err) {
       console.error("Login error:", err);
       setServerError(err.response?.data?.error || "Something went wrong.");
+    } 
+    finally {
+      setIsLoading(false);
     }
   };
 
   const hasError = Boolean(serverError);
 
   return (
-    <div className="max-w-md mx-auto p-5">
-      <h2 className="text-center text-2xl font-semibold mb-3">Login</h2>
-      <form className="flex flex-col" onSubmit={handleSubmit}>
-        <div className="relative mb-3">
-          <label htmlFor="email" className="block mb-1 font-bold">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-            className={`w-full p-2 border ${hasError ? "border-red-500" : "border-gray-300"} rounded`}
-          />
+    <div className="min-h-screen flex items-center justify-center bg-black p-6">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">Welcome</h1>
+          <p className="text-gray-400">Enter your credentials to continue</p>
         </div>
 
-        <div className="relative mb-3">
-          <label htmlFor="password" className="block mb-1 font-bold">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-            className={`w-full p-2 border ${hasError ? "border-red-500" : "border-gray-300"} rounded`}
-          />
-          {serverError && (
-            <span className="absolute top-full left-0 text-red-500 text-xs mt-1">
-              {serverError}
-            </span>
-          )}
+        <div className="bg-zinc-900 rounded-3xl p-8 shadow-2xl border border-zinc-800">
+          <div className="space-y-6">
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="name@company.com"
+                value={formData.email}
+                onChange={handleChange}
+                className={`w-full px-4 py-3.5 bg-black border ${
+                  hasError ? "border-red-500" : "border-zinc-700"
+                } rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white transition-colors`}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                className={`w-full px-4 py-3.5 bg-black border ${
+                  hasError ? "border-red-500" : "border-zinc-700"
+                } rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white transition-colors`}
+              />
+              {serverError && (
+                <p className="text-red-500 text-sm mt-2">{serverError}</p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="w-full bg-white text-black py-3.5 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
+            </button>
+          </div>
+
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-800"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-zinc-900 text-gray-400">or continue with</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <GoogleLogin
+  onSuccess={async (credentialResponse) => {
+    try {
+      setIsLoading(true);
+      const data = await loginWithGoogle(credentialResponse.credential);
+      if (!data.error) navigate("/");
+    } catch (err) {
+      console.error("Google login failed:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }}
+  onError={() => console.log("Login Failed")}
+  theme="filled_blue"
+  text="continue_with"
+  useOneTap
+/>
+            
+          </div>
+
+          <p className="text-center text-xs text-gray-500 mt-6">
+            Cookies must be enabled for Google login
+          </p>
         </div>
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white py-2 rounded w-full font-medium hover:opacity-90"
-        >
-          Login
-        </button>
-      </form>
-
-      <p className="text-center mt-3">
-        Don't have an account?{" "}
-        <Link className="text-blue-600 hover:underline" to="/register">
-          Register
-        </Link>
-      </p>
-
-      <div className="relative text-center my-3">
-        <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 h-[2px] bg-gray-300"></div>
-        <span className="relative bg-white px-2 text-sm text-gray-600">Or</span>
+        <p className="text-center text-gray-400 text-sm mt-8">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-white font-medium hover:underline">
+            Sign up
+          </Link>
+        </p>
       </div>
-
-      <div className="flex justify-center">
-        <GoogleLogin
-          onSuccess={async (credentialResponse) => {
-            try {
-              const data = await loginWithGoogle(credentialResponse.credential);
-              if (!data.error) navigate("/");
-            } catch (err) {
-              console.error("Google login failed:", err);
-            }
-          }}
-          onError={() => console.log("Login Failed")}
-          theme="filled_blue"
-          text="continue_with"
-          useOneTap
-        />
-      </div>
-      <p className="text-center text-sm text-gray-600 space-y-2 mt-3">
-        please ensure that your cookie preference is set to "Allow all cookies" to use Google login.
-      </p>
     </div>
   );
 };

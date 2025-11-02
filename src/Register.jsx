@@ -83,119 +83,147 @@ const Register = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-5">
-      <h2 className="text-center text-2xl font-semibold mb-3">Register</h2>
-      <form className="flex flex-col" onSubmit={handleSubmit}>
-        <div className="relative mb-3">
-          <label className="block mb-1 font-bold">Name</label>
-          <input
-            type="text"
-            name="name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded"
-          />
+    <div className="min-h-screen flex items-center justify-center bg-black p-6">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">Create Account</h1>
+          <p className="text-gray-400">Sign up to get started</p>
         </div>
 
-        <div className="relative mb-3">
-          <label className="block mb-1 font-bold">Email</label>
-          <div className="relative">
-            <input
-              type="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className={`w-full p-2 pr-24 border ${serverError ? "border-red-500" : "border-gray-300"} rounded`}
-            />
+        <div className="bg-zinc-900 rounded-3xl p-8 shadow-2xl border border-zinc-800">
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                name="name"
+                required
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-4 py-3.5 bg-black border border-zinc-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white transition-colors"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="name@company.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3.5 pr-28 bg-black border ${
+                    serverError ? "border-red-500" : "border-zinc-700"
+                  } rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white transition-colors`}
+                />
+                <button
+                  type="button"
+                  onClick={handleSendOtp}
+                  disabled={isSending || countdown > 0}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-black px-3 py-2 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSending
+                    ? "Sending..."
+                    : countdown > 0
+                      ? `${countdown}s`
+                      : "Send OTP"}
+                </button>
+              </div>
+              {serverError && (
+                <p className="text-red-500 text-sm mt-2">{serverError}</p>
+              )}
+            </div>
+
+            {otpSent && (
+              <div>
+                <label htmlFor="otp" className="block text-sm font-medium text-gray-300 mb-2">
+                  Enter OTP
+                </label>
+                <div className="relative">
+                  <input
+                    id="otp"
+                    type="text"
+                    maxLength={4}
+                    placeholder="Enter 4-digit code"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full px-4 py-3.5 pr-28 bg-black border border-zinc-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerifyOtp}
+                    disabled={isVerifying || otpVerified}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 text-xs font-medium rounded-lg transition-colors disabled:cursor-not-allowed ${
+                      otpVerified
+                        ? "bg-green-500 text-white"
+                        : "bg-white text-black hover:bg-gray-200 disabled:opacity-50"
+                    }`}
+                  >
+                    {isVerifying
+                      ? "Verifying..."
+                      : otpVerified
+                        ? "✓ Verified"
+                        : "Verify"}
+                  </button>
+                </div>
+                {otpError && (
+                  <p className="text-red-500 text-sm mt-2">{otpError}</p>
+                )}
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                required
+                placeholder="Create a strong password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-4 py-3.5 bg-black border border-zinc-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white transition-colors"
+              />
+            </div>
+
             <button
               type="button"
-              onClick={handleSendOtp}
-              disabled={isSending || countdown > 0}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-2 py-1 text-xs rounded"
+              onClick={handleSubmit}
+              disabled={!otpVerified || isSuccess}
+              className={`w-full py-3.5 rounded-xl font-semibold transition-colors ${
+                !otpVerified || isSuccess
+                  ? "bg-zinc-700 text-zinc-500 cursor-not-allowed"
+                  : "bg-white text-black hover:bg-gray-200"
+              }`}
             >
-              {isSending
-                ? "Sending..."
-                : countdown > 0
-                  ? `${countdown}s`
-                  : "Send OTP"}
+              {isSuccess ? "✓ Registration Successful" : "Create Account"}
             </button>
           </div>
-          {serverError && (
-            <span className="absolute text-xs text-red-500 mt-1">
-              {serverError}
-            </span>
-          )}
-        </div>
 
-        {otpSent && (
-          <div className="relative mb-3">
-            <label className="block mb-1 font-bold">Enter OTP</label>
-            <div className="relative">
-              <input
-                type="text"
-                maxLength={4}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="w-full p-2 pr-24 border border-gray-300 rounded"
-              />
-              <button
-                type="button"
-                onClick={handleVerifyOtp}
-                disabled={isVerifying || otpVerified}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-2 py-1 text-xs rounded"
-              >
-                {isVerifying
-                  ? "Verifying..."
-                  : otpVerified
-                    ? "Verified"
-                    : "Verify OTP"}
-              </button>
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-800"></div>
             </div>
-            {otpError && (
-              <span className="absolute text-xs text-red-500 mt-1">
-                {otpError}
-              </span>
-            )}
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-zinc-900 text-gray-400">or continue with</span>
+            </div>
           </div>
-        )}
 
-        <div className="relative mb-3">
-          <label className="block mb-1 font-bold">Password</label>
-          <input
-            type="password"
-            name="password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className={`bg-blue-500 text-white py-2 rounded w-full font-medium hover:opacity-90 ${!otpVerified || isSuccess ? "opacity-60 cursor-not-allowed" : ""}`}
-          disabled={!otpVerified || isSuccess}
-        >
-          {isSuccess ? "Registration Successful" : "Register"}
-        </button>
-      </form>
-
-      <p className="text-center mt-3">
-        Already have an account?{" "}
-        <Link to="/login" className="text-blue-600 hover:underline">
-          Login
-        </Link>
-      </p>
-
-      <div className="relative text-center my-3">
-        <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 h-[2px] bg-gray-300"></div>
-        <span className="relative bg-white px-2 text-sm text-gray-600">Or</span>
-      </div>
-
-      <div className="flex justify-center">
-        <GoogleLogin
+          <div className="flex justify-center">
+            <div className="text-center text-gray-400 text-sm p-4 border border-zinc-700 rounded-lg">
+            
+             <GoogleLogin
           onSuccess={async (credentialResponse) => {
             const data = await loginWithGoogle(credentialResponse.credential);
             if (!data.error) navigate("/");
@@ -205,6 +233,16 @@ const Register = () => {
           text="continue_with"
           useOneTap
         />
+            </div>
+          </div>
+        </div>
+
+        <p className="text-center text-gray-400 text-sm mt-8">
+          Already have an account?{" "}
+          <Link to="/login" className="text-white font-medium hover:underline">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { AlertCircle, FolderOpen, Upload as UploadIcon } from "lucide-react";
 import DirectoryHeader from "./components/DirectoryHeader";
 import CreateDirectoryModal from "./components/CreateDirectoryModal";
 import RenameModal from "./components/RenameModal";
@@ -33,7 +34,7 @@ function DirectoryView() {
   const fileInputRef = useRef(null);
 
   // Single-file upload state
-  const [uploadItem, setUploadItem] = useState(null); // { id, file, name, size, progress, isUploading }
+  const [uploadItem, setUploadItem] = useState(null);
   const xhrRef = useRef(null);
 
   const [activeContextMenu, setActiveContextMenu] = useState(null);
@@ -49,6 +50,7 @@ function DirectoryView() {
       setDirectoryName(dirId ? data.name : "My Drive");
       setDirectoriesList([...data.directories].reverse());
       setFilesList([...data.files].reverse());
+      setErrorMessage("");
     } catch (err) {
       if (err.response?.status === 401) navigate("/login");
       else setErrorMessage(err.response?.data?.error || err.message);
@@ -119,13 +121,12 @@ function DirectoryView() {
       id: `temp-${Date.now()}`,
       isUploading: true,
       progress: 0,
+      createdAt: new Date().toISOString(),
     };
 
-    // Optimistically show the file in the list
     setFilesList((prev) => [tempItem, ...prev]);
     setUploadItem(tempItem);
     e.target.value = "";
-
     startUpload(tempItem);
   }
 
@@ -151,55 +152,62 @@ function DirectoryView() {
       })
       .catch((error) => {
         console.error("Error:", error);
+        throw error;
       });
   }
 
   async function startUpload(item) {
-    const { url, fileId } = await getsignedUrl(item);
-    const xhr = new XMLHttpRequest();
-    xhrRef.current = xhr;
-    xhr.open("PUT", url);
-    xhr.upload.addEventListener("progress", (evt) => {
-      if (evt.lengthComputable) {
-        const progress = (evt.loaded / evt.total) * 100;
-        setUploadItem((prev) => (prev ? { ...prev, progress } : prev));
-      }
-    });
+    try {
+      const { url, fileId } = await getsignedUrl(item);
+      const xhr = new XMLHttpRequest();
+      xhrRef.current = xhr;
+      xhr.open("PUT", url);
+      
+      xhr.upload.addEventListener("progress", (evt) => {
+        if (evt.lengthComputable) {
+          const progress = (evt.loaded / evt.total) * 100;
+          setUploadItem((prev) => (prev ? { ...prev, progress } : prev));
+        }
+      });
 
-    xhr.onload = async () => {
-      if (xhr.status == 200) {
-        await fetch(
-          `${import.meta.env.VITE_BACKEND_BASE_URL}/file/upload/check`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ fileId: fileId }),
-            credentials: "include",
-          }
-        );
-      }
+      xhr.onload = async () => {
+        if (xhr.status === 200) {
+          await fetch(
+            `${import.meta.env.VITE_BACKEND_BASE_URL}/file/upload/check`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ fileId: fileId }),
+              credentials: "include",
+            }
+          );
+        }
+        setUploadItem(null);
+        loadDirectory();
+      };
 
-      setUploadItem(null);
-      loadDirectory();
-    };
+      xhr.onerror = () => {
+        setErrorMessage("Upload failed. Please try again.");
+        setFilesList((prev) => prev.filter((f) => f.id !== item.id));
+        setUploadItem(null);
+        setTimeout(() => setErrorMessage(""), 3000);
+      };
 
-    xhr.onerror = () => {
-      setErrorMessage("some went wrong");
+      xhr.send(item.file);
+    } catch (error) {
+      setErrorMessage("Failed to initiate upload.");
       setFilesList((prev) => prev.filter((f) => f.id !== item.id));
       setUploadItem(null);
       setTimeout(() => setErrorMessage(""), 3000);
-    };
-
-    xhr.send(item.file);
+    }
   }
 
   function handleCancelUpload(tempId) {
     if (uploadItem && uploadItem.id === tempId && xhrRef.current) {
       xhrRef.current.abort();
     }
-    // Remove temp item and reset state
     setFilesList((prev) => prev.filter((f) => f.id !== tempId));
     setUploadItem(null);
   }
@@ -212,6 +220,7 @@ function DirectoryView() {
       loadDirectory();
     } catch (err) {
       setErrorMessage(err.response?.data?.error || err.message);
+      setTimeout(() => setErrorMessage(""), 3000);
     }
   }
 
@@ -224,6 +233,7 @@ function DirectoryView() {
       loadDirectory();
     } catch (err) {
       setErrorMessage(err.response?.data?.error || err.message);
+      setTimeout(() => setErrorMessage(""), 3000);
     }
   }
 
@@ -247,6 +257,7 @@ function DirectoryView() {
       loadDirectory();
     } catch (err) {
       setErrorMessage(err.response?.data?.error || err.message);
+      setTimeout(() => setErrorMessage(""), 3000);
     }
   }
 
@@ -261,11 +272,13 @@ function DirectoryView() {
     ...filesList.map((f) => ({ ...f, isDirectory: false })),
   ];
 
-  // For compatibility with children expecting these values:
   const isUploading = !!uploadItem?.isUploading;
   const progressMap = uploadItem
     ? { [uploadItem.id]: uploadItem.progress || 0 }
     : {};
+
+  const isAccessDenied =
+    errorMessage === "Directory not found or you do not have access to it!";
 
   return (
     <DirectoryContext.Provider
@@ -286,73 +299,109 @@ function DirectoryView() {
         openDetailsPopup,
       }}
     >
-      <div className="mx-2 md:mx-4">
-        {errorMessage &&
-          errorMessage !==
-            "Directory not found or you do not have access to it!" && (
-            <div className="error-message text-red-500 text-xs text-center mt-1">
-              {errorMessage}
+      <div className="min-h-screen bg-gray-950">
+        <div className="">
+          {/* Error Message Banner */}
+          {errorMessage && !isAccessDenied && (
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-2 duration-300">
+              <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm flex items-center gap-3 max-w-md">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <span className="text-sm font-medium">{errorMessage}</span>
+              </div>
             </div>
           )}
 
-        <DirectoryHeader
-          directoryName={directoryName}
-          onCreateFolderClick={() => setShowCreateDirModal(true)}
-          onUploadFilesClick={() => fileInputRef.current.click()}
-          fileInputRef={fileInputRef}
-          handleFileSelect={handleFileSelect}
-          disabled={
-            errorMessage ===
-            "Directory not found or you do not have access to it!"
-          }
-        />
-
-        {showCreateDirModal && (
-          <CreateDirectoryModal
-            newDirname={newDirname}
-            setNewDirname={setNewDirname}
-            onClose={() => setShowCreateDirModal(false)}
-            onCreateDirectory={handleCreateDirectory}
+          <DirectoryHeader
+            directoryName={directoryName}
+            onCreateFolderClick={() => setShowCreateDirModal(true)}
+            onUploadFilesClick={() => fileInputRef.current?.click()}
+            fileInputRef={fileInputRef}
+            handleFileSelect={handleFileSelect}
+            disabled={isAccessDenied}
           />
-        )}
 
-        {showRenameModal && (
-          <RenameModal
-            renameType={renameType}
-            renameValue={renameValue}
-            setRenameValue={setRenameValue}
-            onClose={() => setShowRenameModal(false)}
-            onRenameSubmit={handleRenameSubmit}
-          />
-        )}
+          {/* Main Content Area */}
+          <div className="pb-8">
+            {combinedItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 px-4">
+                {isAccessDenied ? (
+                  <div className="text-center max-w-md">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-500/10 rounded-full mb-4">
+                      <AlertCircle className="w-8 h-8 text-red-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-200 mb-2">
+                      Access Denied
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      Directory not found or you do not have access to it!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center max-w-md">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/10 rounded-full mb-4">
+                      <FolderOpen className="w-8 h-8 text-blue-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-200 mb-2">
+                      This folder is empty
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-6">
+                      Upload a file or create a folder to get started
+                    </p>
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => setShowCreateDirModal(true)}
+                        className="px-4 py-2 bg-gray-800 text-gray-200 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+                      >
+                        Create Folder
+                      </button>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2"
+                      >
+                        <UploadIcon className="w-4 h-4" />
+                        Upload File
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <DirectoryList items={combinedItems} />
+            )}
+          </div>
 
-        {detailsItem && (
-          <DetailsPopup item={detailsItem} onClose={closeDetailsPopup} />
-        )}
+          {/* Modals */}
+          {showCreateDirModal && (
+            <CreateDirectoryModal
+              newDirname={newDirname}
+              setNewDirname={setNewDirname}
+              onClose={() => setShowCreateDirModal(false)}
+              onCreateDirectory={handleCreateDirectory}
+            />
+          )}
 
-        {combinedItems.length === 0 ? (
-          errorMessage ===
-          "Directory not found or you do not have access to it!" ? (
-            <p className="text-center text-gray-600 mt-4 italic">
-              Directory not found or you do not have access to it!
-            </p>
-          ) : (
-            <p className="text-center text-gray-600 mt-4 italic">
-              This folder is empty. Upload a file or create a folder to see some
-              data.
-            </p>
-          )
-        ) : (
-          <DirectoryList items={combinedItems} />
-        )}
+          {showRenameModal && (
+            <RenameModal
+              renameType={renameType}
+              renameValue={renameValue}
+              setRenameValue={setRenameValue}
+              onClose={() => setShowRenameModal(false)}
+              onRenameSubmit={handleRenameSubmit}
+            />
+          )}
 
-        {deleteItem && (
-          <ConfirmDeleteModal
-            item={deleteItem}
-            onConfirm={confirmDelete}
-            onCancel={() => setDeleteItem(null)}
-          />
-        )}
+          {detailsItem && (
+            <DetailsPopup item={detailsItem} onClose={closeDetailsPopup} />
+          )}
+
+          {deleteItem && (
+            <ConfirmDeleteModal
+              item={deleteItem}
+              onConfirm={confirmDelete}
+              onCancel={() => setDeleteItem(null)}
+            />
+          )}
+        </div>
       </div>
     </DirectoryContext.Provider>
   );
