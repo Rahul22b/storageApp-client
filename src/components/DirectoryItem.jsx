@@ -99,7 +99,7 @@ function DirectoryItem({ item, uploadProgress }) {
         {/* Action Button */}
         {!isUploadingItem && (
           <button
-            className="flex-shrink-0 p-2 text-gray-500 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+            className="flex-shrink-0 p-2 text-gray-500 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors  "
             onClick={(e) => {
               e.stopPropagation();
               handleContextMenu(e, item.id);

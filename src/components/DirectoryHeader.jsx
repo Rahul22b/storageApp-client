@@ -105,7 +105,7 @@ function DirectoryHeader({
   };
 
   return (
-    <header className="bg-gray-900 border-b border-gray-800 py-4 px-6 mb-6">
+    <header className="bg-gray-900 border-b border-gray-800 py-4 px-2 mb-6">
       <div className="flex items-center justify-between">
         {/* Directory Name */}
         <div className="flex items-center gap-3">

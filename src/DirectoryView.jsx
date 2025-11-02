@@ -16,6 +16,49 @@ import { deleteFile, renameFile } from "./api/fileApi";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
 
+// Shimmer Loading Component
+function ShimmerItem() {
+  return (
+    <div className="animate-pulse flex flex-col gap-2 px-4 py-3 bg-gray-800/40 border border-gray-700/60 rounded-lg">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 flex-1">
+          {/* Icon skeleton */}
+          <div className="w-9 h-9 bg-gray-700/50 rounded-lg shimmer" />
+          {/* Text skeleton */}
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-gray-700/50 rounded w-3/4 shimmer" />
+            <div className="h-3 bg-gray-700/30 rounded w-1/2 shimmer" />
+          </div>
+        </div>
+        {/* Action button skeleton */}
+        <div className="w-8 h-8 bg-gray-700/30 rounded-lg shimmer" />
+      </div>
+    </div>
+  );
+}
+
+function ShimmerLoading() {
+  return (
+    <div className="space-y-4">
+      {/* Header shimmer */}
+      <div className="flex items-center justify-between px-2">
+        <div className="h-5 w-20 bg-gray-700/50 rounded shimmer" />
+        <div className="flex gap-1 bg-gray-800 rounded-lg p-1 border border-gray-700/50">
+          <div className="w-8 h-8 bg-gray-700/50 rounded shimmer" />
+          <div className="w-8 h-8 bg-gray-700/50 rounded shimmer" />
+        </div>
+      </div>
+      
+      {/* Items shimmer */}
+      <div className="space-y-2 mx-2">
+        {[...Array(6)].map((_, i) => (
+          <ShimmerItem key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function DirectoryView() {
   const { dirId } = useParams();
   const navigate = useNavigate();
@@ -30,6 +73,7 @@ function DirectoryView() {
   const [renameType, setRenameType] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const fileInputRef = useRef(null);
 
@@ -45,6 +89,7 @@ function DirectoryView() {
   const closeDetailsPopup = () => setDetailsItem(null);
 
   const loadDirectory = async () => {
+    setIsLoading(true);
     try {
       const data = await getDirectoryItems(dirId);
       setDirectoryName(dirId ? data.name : "My Drive");
@@ -54,6 +99,8 @@ function DirectoryView() {
     } catch (err) {
       if (err.response?.status === 401) navigate("/login");
       else setErrorMessage(err.response?.data?.error || err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -300,6 +347,27 @@ function DirectoryView() {
       }}
     >
       <div className="min-h-screen bg-gray-950">
+        <style>{`
+          @keyframes shimmer {
+            0% {
+              background-position: -1000px 0;
+            }
+            100% {
+              background-position: 1000px 0;
+            }
+          }
+          .shimmer {
+            background: linear-gradient(
+              to right,
+              rgba(55, 65, 81, 0.4) 0%,
+              rgba(75, 85, 99, 0.6) 50%,
+              rgba(55, 65, 81, 0.4) 100%
+            );
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+          }
+        `}</style>
+        
         <div className="">
           {/* Error Message Banner */}
           {errorMessage && !isAccessDenied && (
@@ -322,7 +390,9 @@ function DirectoryView() {
 
           {/* Main Content Area */}
           <div className="pb-8">
-            {combinedItems.length === 0 ? (
+            {isLoading ? (
+              <ShimmerLoading />
+            ) : combinedItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 px-4">
                 {isAccessDenied ? (
                   <div className="text-center max-w-md">
