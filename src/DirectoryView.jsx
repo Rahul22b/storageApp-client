@@ -68,6 +68,9 @@ function DirectoryView() {
   // const [directoryName, setDirectoryName] = useState("My Drive");
   // const [directoriesList, setDirectoriesList] = useState([]);
   // const [filesList, setFilesList] = useState([]);
+  const [filesList, setFilesList] = useState([]);
+  const [directoriesList, setDirectoriesList] = useState([]);
+  const [directoryName,setDirectoryName]=useState("My Drive")
   const [errorMessage, setErrorMessage] = useState("");
   const [showCreateDirModal, setShowCreateDirModal] = useState(false);
   const [newDirname, setNewDirname] = useState("New Folder");
@@ -89,11 +92,23 @@ function DirectoryView() {
 
   const openDetailsPopup = (item) => setDetailsItem(item);
   const closeDetailsPopup = () => setDetailsItem(null);
-  const directoryName=dirId ? directoryData?.name || "loading..." : "My Drive";
-  const directoriesList=directoryData?.directories ? [...directoryData.directories].reverse() : [];
-  const filesList=directoryData?.files ? [...directoryData.files].reverse() : [];
-  const isLoadingState=isLoading || isFetching;
-
+  // const directoryName=dirId ? directoryData?.name || "loading..." : "My Drive";
+  // const directoriesList=directoryData?.directories ? [...directoryData.directories].reverse() : [];
+  // setFilesList((directoryData?.files ? [...directoryData.files].reverse() : []))
+  // const filesList=directoryData?.files ? [...directoryData.files].reverse() : [];
+  // const isLoadingState=isLoading || isFetching;
+    
+  useEffect(() => {
+    if (directoryData) {
+      setDirectoryName(dirId ? directoryData.name || "My Drive" : "My Drive");
+      setDirectoriesList(directoryData.directories ? [...directoryData.directories].reverse() : []);
+      setFilesList(directoryData.files ? [...directoryData.files].reverse() : []);
+    } else if (!dirId) {
+      setDirectoryName("My Drive");
+      setDirectoriesList([]);
+      setFilesList([]);
+    }
+  }, [directoryData, dirId]);
 
 
  useEffect(()=>{
