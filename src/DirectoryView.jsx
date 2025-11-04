@@ -6,12 +6,7 @@ import CreateDirectoryModal from "./components/CreateDirectoryModal";
 import RenameModal from "./components/RenameModal";
 import DirectoryList from "./components/DirectoryList";
 import { DirectoryContext } from "./context/DirectoryContext";
-import {
-  getDirectoryItems,
-  createDirectory,
-  deleteDirectory,
-  renameDirectory,
-} from "./api/directoryApi";
+import { useGetDirectoryItemsQuery,useCreateDirectoryMutation,useDeleteDirectoryMutation,useRenameDirectoryMutation } from "./api/directoryApi";
 import { deleteFile, renameFile } from "./api/fileApi";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
@@ -60,12 +55,19 @@ function ShimmerLoading() {
 }
 
 function DirectoryView() {
+
   const { dirId } = useParams();
   const navigate = useNavigate();
 
-  const [directoryName, setDirectoryName] = useState("My Drive");
-  const [directoriesList, setDirectoriesList] = useState([]);
-  const [filesList, setFilesList] = useState([]);
+  const { data:directoryData, error, isLoading,isFetching, refetch } = useGetDirectoryItemsQuery(dirId || "");
+
+  const [createDirectoryMutation]=useCreateDirectoryMutation();
+  const [deleteDirectoryMutation]=useDeleteDirectoryMutation();
+  const [renameDirectoryMutation]=useRenameDirectoryMutation();
+
+  // const [directoryName, setDirectoryName] = useState("My Drive");
+  // const [directoriesList, setDirectoriesList] = useState([]);
+  // const [filesList, setFilesList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showCreateDirModal, setShowCreateDirModal] = useState(false);
   const [newDirname, setNewDirname] = useState("New Folder");
@@ -73,7 +75,7 @@ function DirectoryView() {
   const [renameType, setRenameType] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
   const fileInputRef = useRef(null);
 
@@ -87,25 +89,23 @@ function DirectoryView() {
 
   const openDetailsPopup = (item) => setDetailsItem(item);
   const closeDetailsPopup = () => setDetailsItem(null);
+  const directoryName=dirId ? directoryData?.name || "loading..." : "My Drive";
+  const directoriesList=directoryData?.directories ? [...directoryData.directories].reverse() : [];
+  const filesList=directoryData?.files ? [...directoryData.files].reverse() : [];
+  const isLoadingState=isLoading || isFetching;
 
-  const loadDirectory = async () => {
-    setIsLoading(true);
-    try {
-      const data = await getDirectoryItems(dirId);
-      setDirectoryName(dirId ? data.name : "My Drive");
-      setDirectoriesList([...data.directories].reverse());
-      setFilesList([...data.files].reverse());
-      setErrorMessage("");
-    } catch (err) {
-      if (err.response?.status === 401) navigate("/login");
-      else setErrorMessage(err.response?.data?.error || err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
+
+ useEffect(()=>{
+  if(error){
+    if(error.status===401) navigate("/login");
+    else {setErrorMessage(error.data?.error || error.message);
+    setTimeout(() => setErrorMessage(""), 3000);}
+
+  }
+ },[error,navigate]);
 
   useEffect(() => {
-    loadDirectory();
     setActiveContextMenu(null);
   }, [dirId]);
 
@@ -230,9 +230,10 @@ function DirectoryView() {
               credentials: "include",
             }
           );
+          refetch();
         }
         setUploadItem(null);
-        loadDirectory();
+        // loadDirectory();
       };
 
       xhr.onerror = () => {
@@ -260,26 +261,28 @@ function DirectoryView() {
   }
 
   async function confirmDelete(item) {
+    const parentId=dirId || ""
+    setDeleteItem(null);
     try {
-      if (item.isDirectory) await deleteDirectory(item.id);
+      // if (item.isDirectory) await deleteDirectory(item.id);
+      if(item.isDirectory) await deleteDirectoryMutation({id:item.id,parentId:parentId}).unwrap();
       else await deleteFile(item.id);
-      setDeleteItem(null);
-      loadDirectory();
+      // setDeleteItem(null);
+      // loadDirectory();
     } catch (err) {
-      setErrorMessage(err.response?.data?.error || err.message);
+      setErrorMessage(err.data?.error || err.message || "not created");
       setTimeout(() => setErrorMessage(""), 3000);
     }
   }
 
   async function handleCreateDirectory(e) {
     e.preventDefault();
+    setShowCreateDirModal(false);
     try {
-      await createDirectory(dirId, newDirname);
+      await createDirectoryMutation({dirId,newDirname}).unwrap();
       setNewDirname("New Folder");
-      setShowCreateDirModal(false);
-      loadDirectory();
     } catch (err) {
-      setErrorMessage(err.response?.data?.error || err.message);
+      setErrorMessage(err.data?.error || err.message);
       setTimeout(() => setErrorMessage(""), 3000);
     }
   }
@@ -293,15 +296,23 @@ function DirectoryView() {
 
   async function handleRenameSubmit(e) {
     e.preventDefault();
+    const parentId=dirId || "";
+    
+    if (!renameValue || renameValue.trim() === "") {
+    setErrorMessage("Directory name cannot be empty. Please enter a valid name.");
+    setTimeout(() => setErrorMessage(""), 3000);
+    return; // Stop the function before calling the mutation
+  }
+  setShowRenameModal(false);
     try {
       if (renameType === "file") await renameFile(renameId, renameValue);
-      else await renameDirectory(renameId, renameValue);
+      else  await renameDirectoryMutation({ id: renameId, newDirName: renameValue, parentId: parentId }).unwrap();
+    
 
-      setShowRenameModal(false);
+      // setShowRenameModal(false);
       setRenameValue("");
       setRenameType(null);
       setRenameId(null);
-      loadDirectory();
     } catch (err) {
       setErrorMessage(err.response?.data?.error || err.message);
       setTimeout(() => setErrorMessage(""), 3000);
@@ -390,7 +401,7 @@ function DirectoryView() {
 
           {/* Main Content Area */}
           <div className="pb-8">
-            {isLoading ? (
+            {isLoading  || isFetching ? (
               <ShimmerLoading />
             ) : combinedItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 px-4">
