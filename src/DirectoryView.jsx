@@ -1,13 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AlertCircle, FolderOpen, Upload as UploadIcon } from "lucide-react";
+import { AlertCircle, FolderOpen, Newspaper, Upload as UploadIcon } from "lucide-react";
 import DirectoryHeader from "./components/DirectoryHeader";
 import CreateDirectoryModal from "./components/CreateDirectoryModal";
 import RenameModal from "./components/RenameModal";
 import DirectoryList from "./components/DirectoryList";
 import { DirectoryContext } from "./context/DirectoryContext";
-import { useGetDirectoryItemsQuery,useCreateDirectoryMutation,useDeleteDirectoryMutation,useRenameDirectoryMutation } from "./api/directoryApi";
-import { deleteFile, renameFile } from "./api/fileApi";
+import { useGetDirectoryItemsQuery,useCreateDirectoryMutation,useDeleteDirectoryMutation,useRenameDirectoryMutation,useDeleteFileMutation,useRenameFileMutation } from "./api/directoryApi";
+// import { deleteFile, renameFile } from "./api/fileApi";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
 
@@ -64,10 +64,10 @@ function DirectoryView() {
   const [createDirectoryMutation]=useCreateDirectoryMutation();
   const [deleteDirectoryMutation]=useDeleteDirectoryMutation();
   const [renameDirectoryMutation]=useRenameDirectoryMutation();
-
-  // const [directoryName, setDirectoryName] = useState("My Drive");
-  // const [directoriesList, setDirectoriesList] = useState([]);
-  // const [filesList, setFilesList] = useState([]);
+  // const [deleteFileMutation]=useDeleteFileMutation();
+  // Correct destructuring for a mutation hook
+const [deleteFileMutation, { isLoading: isDeletingFile }] = useDeleteFileMutation();
+  const [renameFileMutation]=useRenameFileMutation();
   const [filesList, setFilesList] = useState([]);
   const [directoriesList, setDirectoriesList] = useState([]);
   const [directoryName,setDirectoryName]=useState("My Drive")
@@ -276,12 +276,14 @@ function DirectoryView() {
   }
 
   async function confirmDelete(item) {
+    setDeleteItem(null);
     const parentId=dirId || ""
     setDeleteItem(null);
     try {
       // if (item.isDirectory) await deleteDirectory(item.id);
       if(item.isDirectory) await deleteDirectoryMutation({id:item.id,parentId:parentId}).unwrap();
-      else await deleteFile(item.id);
+      // else await deleteFile(item.id);
+      else deleteFileMutation({id:item.id,parentId}).unwrap();
       // setDeleteItem(null);
       // loadDirectory();
     } catch (err) {
@@ -320,7 +322,7 @@ function DirectoryView() {
   }
   setShowRenameModal(false);
     try {
-      if (renameType === "file") await renameFile(renameId, renameValue);
+      if (renameType === "file") await renameFileMutation({id:renameId,newFilename:renameValue,parentId:parentId}).unwrap();
       else  await renameDirectoryMutation({ id: renameId, newDirName: renameValue, parentId: parentId }).unwrap();
     
 
