@@ -31,7 +31,7 @@ export const loginUser = async (formData) => {
 };
 
 export const registerUser = async (formData) => {
-  const { data } = await axiosWithoutCreds.post("/user/register", formData);
+  const { data } = await axiosWithCreds.post("/user/register", formData);
   return data;
 };
 

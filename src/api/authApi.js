@@ -6,7 +6,7 @@ export const sendOtp = async (email) => {
 };
 
 export const verifyOtp = async (email, otp) => {
-  const { data } = await axiosWithoutCreds.post("/auth/verify-otp", {
+  const { data } = await axiosWithCreds.post("/auth/verify-otp", {
     email,
     otp,
   });
