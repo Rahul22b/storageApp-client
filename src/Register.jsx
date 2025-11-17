@@ -41,20 +41,65 @@ const Register = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSendOtp = async () => {
-    if (!formData.email) return setOtpError("Please enter your email first.");
-    try {
-      setIsSending(true);
-      await sendOtp(formData.email);
-      setOtpSent(true);
-      setCountdown(60);
-      setOtpError("");
-    } catch (err) {
-      setOtpError(err.response?.data?.error || "Failed to send OTP.");
-    } finally {
-      setIsSending(false);
+//   const handleSendOtp = async () => {
+//     if (!formData.email) return setOtpError("Please enter your email first.");
+//     try {
+//       setIsSending(true);
+//      await sendOtp(formData.email);
+  
+//       setOtpSent(true);
+//       setCountdown(60);
+//       setOtpError("");
+
+//     } catch (err) {
+//       console.log("err",err.response?.data?.error);
+//       const errorMessage = err.response?.data?.error || "Failed to send OTP.";
+//      setOtpError(errorMessage);
+//      setOtpSent(false); 
+//       setOtpVerified(false); 
+//       setCountdown(0);
+//     } finally {
+//       setIsSending(false);
+//     }
+//   };
+
+// Inside the Register component...
+
+  const handleSendOtp = async () => {
+    if (!formData.email) {
+      setServerError("Please enter your email first."); // Use serverError for input validation too
+      return;
     }
-  };
+    
+    // 1. Clear previous errors before API call
+    setServerError(""); 
+    setOtpError("");
+    setOtpSent(false); // Make sure the OTP input disappears on a new attempt
+    setOtpVerified(false);
+
+    try {
+      setIsSending(true);
+      await sendOtp(formData.email);
+  
+      // Success state
+      setOtpSent(true);
+      setCountdown(60);
+    } catch (err) {
+      // 2. Log the error for debugging (this is where you see the "email already exist" message)
+      console.error("OTP Send Error:", err.response?.data?.error || err.message);
+
+      // 3. Extract the error and store it in the state variable rendered on the display
+      const errorMessage = err.response?.data?.error || "Failed to connect to server.";
+      setServerError(errorMessage); // <-- THIS is the key to displaying the error
+      
+      // Ensure flow stops:
+      setOtpSent(false); 
+      setCountdown(0);
+      
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const handleVerifyOtp = async () => {
     if (!otp) return setOtpError("Please enter OTP.");
@@ -63,6 +108,7 @@ const Register = () => {
       await verifyOtp(formData.email, otp);
       setOtpVerified(true);
       setOtpError("");
+      
     } catch (err) {
       setOtpError(err.response?.data?.error || "Invalid or expired OTP.");
     } finally {
@@ -78,6 +124,7 @@ const Register = () => {
       setIsSuccess(true);
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {
+      console.log("err",err);
       setServerError(err.response?.data?.error || "Something went wrong.");
     }
   };
