@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-import { loginWithGoogle, sendOtp, verifyOtp } from "./api/authApi";
+import { loginWithGoogle, sendOtp} from "./api/authApi";
 import { registerUser } from "./api/userApi";
 
 const Register = () => {
@@ -10,14 +10,15 @@ const Register = () => {
     email: "",
     password: "",
   });
+  
   const [serverError, setServerError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
+  // const [otpVerified, setOtpVerified] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
+  // const [isVerifying, setIsVerifying] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
   const navigate = useNavigate();
@@ -35,96 +36,72 @@ const Register = () => {
       setServerError("");
       setOtpError("");
       setOtpSent(false);
-      setOtpVerified(false);
       setCountdown(0);
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-//   const handleSendOtp = async () => {
-//     if (!formData.email) return setOtpError("Please enter your email first.");
-//     try {
-//       setIsSending(true);
-//      await sendOtp(formData.email);
-  
-//       setOtpSent(true);
-//       setCountdown(60);
-//       setOtpError("");
-
-//     } catch (err) {
-//       console.log("err",err.response?.data?.error);
-//       const errorMessage = err.response?.data?.error || "Failed to send OTP.";
-//      setOtpError(errorMessage);
-//      setOtpSent(false); 
-//       setOtpVerified(false); 
-//       setCountdown(0);
-//     } finally {
-//       setIsSending(false);
-//     }
-//   };
-
-// Inside the Register component...
-
-  const handleSendOtp = async () => {
-    if (!formData.email) {
-      setServerError("Please enter your email first."); // Use serverError for input validation too
+  const handleSendOtp = async () => {
+    if (!formData.email) {
+      setServerError("Please enter your email first."); // Use serverError for input validation too
       return;
     }
-    
+
     // 1. Clear previous errors before API call
-    setServerError(""); 
+    setServerError("");
     setOtpError("");
     setOtpSent(false); // Make sure the OTP input disappears on a new attempt
-    setOtpVerified(false);
+    // setOtpVerified(false);
 
-    try {
-      setIsSending(true);
-      await sendOtp(formData.email);
-  
-      // Success state
-      setOtpSent(true);
-      setCountdown(60);
-    } catch (err) {
+    try {
+      setIsSending(true);
+      await sendOtp(formData.email); // Success state
+      setOtpSent(true);
+      setCountdown(60);
+    } catch (err) {
       // 2. Log the error for debugging (this is where you see the "email already exist" message)
-      console.error("OTP Send Error:", err.response?.data?.error || err.message);
+      console.error(
+        "OTP Send Error:",
+        err.response?.data?.error || err.message
+      );
 
       // 3. Extract the error and store it in the state variable rendered on the display
-      const errorMessage = err.response?.data?.error || "Failed to connect to server.";
-      setServerError(errorMessage); // <-- THIS is the key to displaying the error
-      
-      // Ensure flow stops:
-      setOtpSent(false); 
-      setCountdown(0);
-      
-    } finally {
-      setIsSending(false);
-    }
-  };
+      const errorMessage =
+        err.response?.data?.error || "Failed to connect to server.";
+      setServerError(errorMessage); // <-- THIS is the key to displaying the error
 
-  const handleVerifyOtp = async () => {
-    if (!otp) return setOtpError("Please enter OTP.");
-    try {
-      setIsVerifying(true);
-      await verifyOtp(formData.email, otp);
-      setOtpVerified(true);
-      setOtpError("");
-      
-    } catch (err) {
-      setOtpError(err.response?.data?.error || "Invalid or expired OTP.");
+      // Ensure flow stops:
+      setOtpSent(false);
+      setCountdown(0);
     } finally {
-      setIsVerifying(false);
+      setIsSending(false);
     }
   };
 
+  // const handleVerifyOtp = async () => {
+  //   if (!otp) return setOtpError("Please enter OTP.");
+  //   try {
+  //     setIsVerifying(true);
+  //     await verifyOtp(formData.email, otp);
+  //     setOtpVerified(true);
+  //     setOtpError("");
+
+  //   } catch (err) {
+  //     setOtpError(err.response?.data?.error || "Invalid or expired OTP.");
+  //   } finally {
+  //     setIsVerifying(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!otpVerified) return setOtpError("Please verify your email with OTP.");
+    // if (!otpVerified) return setOtpError("Please verify your email with OTP.");
     try {
       await registerUser({ ...formData, otp });
       setIsSuccess(true);
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {
-      console.log("err",err);
+      console.log("err", err);
       setServerError(err.response?.data?.error || "Something went wrong.");
     }
   };
@@ -133,14 +110,19 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-black p-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">Create Account</h1>
+          <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">
+            Create Account
+          </h1>
           <p className="text-gray-400">Sign up to get started</p>
         </div>
 
         <div className="bg-zinc-900 rounded-3xl p-8 shadow-2xl border border-zinc-800">
           <div className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
                 Name
               </label>
               <input
@@ -156,7 +138,10 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
                 Email
               </label>
               <div className="relative">
@@ -181,8 +166,8 @@ const Register = () => {
                   {isSending
                     ? "Sending..."
                     : countdown > 0
-                      ? `${countdown}s`
-                      : "Send OTP"}
+                    ? `${countdown}s`
+                    : "Send OTP"}
                 </button>
               </div>
               {serverError && (
@@ -192,7 +177,10 @@ const Register = () => {
 
             {otpSent && (
               <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-300 mb-2">
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-medium text-gray-300 mb-2"
+                >
                   Enter OTP
                 </label>
                 <div className="relative">
@@ -205,9 +193,9 @@ const Register = () => {
                     onChange={(e) => setOtp(e.target.value)}
                     className="w-full px-4 py-3.5 pr-28 bg-black border border-zinc-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white transition-colors"
                   />
-                  <button
+                  {/* <button
                     type="button"
-                    onClick={handleVerifyOtp}
+                    // onClick={handleVerifyOtp}
                     disabled={isVerifying || otpVerified}
                     className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 text-xs font-medium rounded-lg transition-colors disabled:cursor-not-allowed ${
                       otpVerified
@@ -220,7 +208,7 @@ const Register = () => {
                       : otpVerified
                         ? "✓ Verified"
                         : "Verify"}
-                  </button>
+                  </button> */}
                 </div>
                 {otpError && (
                   <p className="text-red-500 text-sm mt-2">{otpError}</p>
@@ -229,7 +217,10 @@ const Register = () => {
             )}
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
                 Password
               </label>
               <input
@@ -247,9 +238,9 @@ const Register = () => {
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!otpVerified || isSuccess}
+              disabled={!otpSent || isSuccess}
               className={`w-full py-3.5 rounded-xl font-semibold transition-colors ${
-                !otpVerified || isSuccess
+                !otpSent || isSuccess
                   ? "bg-zinc-700 text-zinc-500 cursor-not-allowed"
                   : "bg-white text-black hover:bg-gray-200"
               }`}
@@ -263,23 +254,26 @@ const Register = () => {
               <div className="w-full border-t border-zinc-800"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-zinc-900 text-gray-400">or continue with</span>
+              <span className="px-4 bg-zinc-900 text-gray-400">
+                or continue with
+              </span>
             </div>
           </div>
 
           <div className="flex justify-center">
             <div className="text-center text-gray-400 text-sm p-4 border border-zinc-700 rounded-lg">
-            
-             <GoogleLogin
-          onSuccess={async (credentialResponse) => {
-            const data = await loginWithGoogle(credentialResponse.credential);
-            if (!data.error) navigate("/");
-          }}
-          onError={() => console.log("Login Failed")}
-          theme="filled_blue"
-          text="continue_with"
-          useOneTap
-        />
+              <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  const data = await loginWithGoogle(
+                    credentialResponse.credential
+                  );
+                  if (!data.error) navigate("/");
+                }}
+                onError={() => console.log("Login Failed")}
+                theme="filled_blue"
+                text="continue_with"
+                useOneTap
+              />
             </div>
           </div>
         </div>
