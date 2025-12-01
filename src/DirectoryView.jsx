@@ -1,13 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AlertCircle, FolderOpen, Newspaper, Upload as UploadIcon } from "lucide-react";
+import { AlertCircle, FolderOpen, Upload as UploadIcon } from "lucide-react";
 import DirectoryHeader from "./components/DirectoryHeader";
 import CreateDirectoryModal from "./components/CreateDirectoryModal";
 import RenameModal from "./components/RenameModal";
 import DirectoryList from "./components/DirectoryList";
 import { DirectoryContext } from "./context/DirectoryContext";
 import { useGetDirectoryItemsQuery,useCreateDirectoryMutation,useDeleteDirectoryMutation,useRenameDirectoryMutation,useDeleteFileMutation,useRenameFileMutation } from "./api/directoryApi";
-// import { deleteFile, renameFile } from "./api/fileApi";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
 
@@ -64,9 +63,7 @@ function DirectoryView() {
   const [createDirectoryMutation]=useCreateDirectoryMutation();
   const [deleteDirectoryMutation]=useDeleteDirectoryMutation();
   const [renameDirectoryMutation]=useRenameDirectoryMutation();
-  // const [deleteFileMutation]=useDeleteFileMutation();
-  // Correct destructuring for a mutation hook
-const [deleteFileMutation, { isLoading: isDeletingFile }] = useDeleteFileMutation();
+const [deleteFileMutation] = useDeleteFileMutation();
   const [renameFileMutation]=useRenameFileMutation();
   const [filesList, setFilesList] = useState([]);
   const [directoriesList, setDirectoriesList] = useState([]);
@@ -78,6 +75,7 @@ const [deleteFileMutation, { isLoading: isDeletingFile }] = useDeleteFileMutatio
   const [renameType, setRenameType] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
+
   // const [isLoading, setIsLoading] = useState(true);
 
   const fileInputRef = useRef(null);
@@ -92,11 +90,7 @@ const [deleteFileMutation, { isLoading: isDeletingFile }] = useDeleteFileMutatio
 
   const openDetailsPopup = (item) => setDetailsItem(item);
   const closeDetailsPopup = () => setDetailsItem(null);
-  // const directoryName=dirId ? directoryData?.name || "loading..." : "My Drive";
-  // const directoriesList=directoryData?.directories ? [...directoryData.directories].reverse() : [];
-  // setFilesList((directoryData?.files ? [...directoryData.files].reverse() : []))
-  // const filesList=directoryData?.files ? [...directoryData.files].reverse() : [];
-  // const isLoadingState=isLoading || isFetching;
+
     
   useEffect(() => {
     if (directoryData) {
@@ -284,8 +278,7 @@ const [deleteFileMutation, { isLoading: isDeletingFile }] = useDeleteFileMutatio
       if(item.isDirectory) await deleteDirectoryMutation({id:item.id,parentId:parentId}).unwrap();
       // else await deleteFile(item.id);
       else deleteFileMutation({id:item.id,parentId}).unwrap();
-      // setDeleteItem(null);
-      // loadDirectory();
+
     } catch (err) {
       setErrorMessage(err.data?.error || err.message || "not created");
       setTimeout(() => setErrorMessage(""), 3000);

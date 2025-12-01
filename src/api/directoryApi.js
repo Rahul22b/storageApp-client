@@ -127,7 +127,7 @@ export const directoryApi = createApi({
 
     deleteFile: builder.mutation({
       query: ({ id }) => ({ // Note: backend uses /file/:id
-        url: `/file/${id}`,
+        url: `/file/softDelete/${id}`,
         method: "DELETE",
       }),
       // Requires parentId to update the correct directory list cache

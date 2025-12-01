@@ -6,7 +6,8 @@ import {
   FolderPlus, 
   Upload, 
   User, 
-  LogOut, 
+  LogOut,
+  Trash, 
   LogIn, 
   ShoppingCart,
   ChevronDown,
@@ -244,6 +245,16 @@ function DirectoryHeader({
                         <ShoppingCart className="w-4 h-4 text-gray-400 group-hover:text-green-400" />
                         <span className="text-sm">Upgrade Storage</span>
                       </Link>
+                      
+                     <Link
+                        to="/bin"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:bg-gray-700 transition-colors group"
+                        onClick={()=>{console.log('hello')}}
+                      >
+                        <Trash className="w-4 h-4 text-gray-400 group-hover:text-red-400" />
+                        <span className="text-sm">Recycle Bin</span>
+                      </Link>
+
                     </div>
                   </>
                 ) : (

@@ -6,6 +6,7 @@ import Login from "./Login";
 import UsersPage from "./UsersPage";
 import Subscription from "./Subscription";
 import CustomerPortal from "./CustomerPotal";
+import RecycleBin from "./RecycleBin";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/bin",
+    element: <RecycleBin />,
   },
   {
     path: "/users",
