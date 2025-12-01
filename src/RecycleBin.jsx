@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 import { Trash2, RefreshCw, X, FolderOpen, File, Calendar } from "lucide-react";
 
 export default function RecycleBin() {
@@ -9,7 +10,7 @@ export default function RecycleBin() {
   const handleRestore = async (fileId) => {
     setActionLoading(fileId);
     try {
-      await fetch(`http://localhost:4000/file/restore/${fileId}`, {
+      await fetch(`${BASE_URL}/file/restore/${fileId}`, {
         method: 'PATCH',
         credentials: 'include',
       });
@@ -23,7 +24,7 @@ export default function RecycleBin() {
 
   const fetchData = async () => {
     try {
-      const { files } = await fetch('http://localhost:4000/file/recycledFile', {
+      const { files } = await fetch(`${BASE_URL}/file/recycledFile`, {
         credentials: 'include',
       }).then(res => res.json());
       if (files) {
@@ -39,7 +40,7 @@ export default function RecycleBin() {
   const handleDelete = async (fileId) => {
     setActionLoading(fileId);
     try {
-      await fetch(`http://localhost:4000/file/${fileId}`, {
+      await fetch(`${BASE_URL}/file/${fileId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
