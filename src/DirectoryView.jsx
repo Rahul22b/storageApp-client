@@ -5,7 +5,7 @@ import DirectoryHeader from "./components/DirectoryHeader";
 import CreateDirectoryModal from "./components/CreateDirectoryModal";
 import RenameModal from "./components/RenameModal";
 import DirectoryList from "./components/DirectoryList";
-import { DirectoryContext } from "./context/DirIectoryContext";
+import { DirectoryContext } from "./context/DirectoryContext.js";
 import { useGetDirectoryItemsQuery,useCreateDirectoryMutation,useDeleteDirectoryMutation,useRenameDirectoryMutation,useDeleteFileMutation,useRenameFileMutation } from "./api/directoryApi";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
@@ -59,7 +59,7 @@ function DirectoryView() {
   const { dirId } = useParams();
   const navigate = useNavigate();
 
-  const { data:directoryData, error, isLoading,isFetching, refetch } = useGetDirectoryItemsQuery(dirId || "");
+  const { data:directoryData, error, isLoading, refetch } = useGetDirectoryItemsQuery(dirId || "");
 
   const [createDirectoryMutation]=useCreateDirectoryMutation();
   const [deleteDirectoryMutation]=useDeleteDirectoryMutation();
@@ -76,9 +76,6 @@ const [deleteFileMutation] = useDeleteFileMutation();
   const [renameType, setRenameType] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
-
-  // const [isLoading, setIsLoading] = useState(true);
-
   const fileInputRef = useRef(null);
 
   // Single-file upload state
