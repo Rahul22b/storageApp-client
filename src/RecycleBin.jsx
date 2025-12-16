@@ -1,68 +1,42 @@
-import { useState, useEffect } from "react";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+import { useState,} from "react";
 import { Trash2, RefreshCw, X, FolderOpen, File, Calendar } from "lucide-react";
-import { directoryApi } from "./api/directoryApi";
+import { useRestoreFileMutation ,useGetRecycledFilesQuery,useDeleteRecycledFileMutation} from "./api/directoryApi";
 
 export default function RecycleBin() {
-  const [recycledFiles, setRecycledFiles] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
 
-  const handleRestore = async (fileId) => {
-    setActionLoading(fileId);
-    try {
-      await fetch(`${BASE_URL}/file/restore/${fileId}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        
-      });
-      await fetchData();
-      directoryApi.util.invalidateTags(["DirectoryItem"]);
-    } catch (error) {
-      console.error('Error restoring file:', error);
-    } finally {
-      setActionLoading(null);
-    }
-  };
+  
 
-  const fetchData = async () => {
-    try {
-      const { files } = await fetch(`${BASE_URL}/file/recycledFile`, {
-        credentials: 'include',
-      }).then(res => res.json());
-      if (files) {
-        setRecycledFiles(files);
-      }
-    } catch (error) {
-      console.error('Error fetching recycled files:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+ const { data, isLoading } = useGetRecycledFilesQuery();
+const [restoreFile] = useRestoreFileMutation();
+
+const handleRestore = async (fileId, dirId) => {
+  setActionLoading(fileId);
+  try {
+    await restoreFile({ fileId, parentDirId: dirId }).unwrap();
+  } finally {
+    setActionLoading(null);
+  }
+};
+
+ const [deleteRecycledFile] = useDeleteRecycledFileMutation();
 
   const handleDelete = async (fileId) => {
     setActionLoading(fileId);
     try {
-      await fetch(`${BASE_URL}/file/${fileId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      await fetchData();
-    } catch (error) {
-      console.error('Error deleting file:', error);
+      await deleteRecycledFile(fileId).unwrap();
     } finally {
       setActionLoading(null);
     }
   };
+
+
+ 
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
@@ -76,11 +50,11 @@ export default function RecycleBin() {
 
       {/* Content */}
       <div className="p-6">
-        {loading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : recycledFiles.length === 0 ? (
+        ) : data?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400">
             <Trash2 className="w-20 h-20 mb-4 opacity-30" />
             <p className="text-lg">Recycle bin is empty</p>
@@ -89,10 +63,10 @@ export default function RecycleBin() {
         ) : (
           <div>
             <p className="text-slate-400 text-sm mb-4">
-              {recycledFiles.length} {recycledFiles.length === 1 ? 'item' : 'items'}
+              {data?.length} {data?.length === 1 ? 'item' : 'items'}
             </p>
             <div className="space-y-2">
-              {recycledFiles.map(file => (
+              {data?.map(file => (
                 <div
                   key={file._id}
                   className="bg-slate-800 border border-slate-700 rounded-lg p-4 hover:bg-slate-750 transition-colors"

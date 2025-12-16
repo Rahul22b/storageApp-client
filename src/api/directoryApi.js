@@ -21,6 +21,12 @@ export const directoryApi = createApi({
       ],
     }),
 
+    getRecycledFiles: builder.query({
+  query: () => "/file/recycledFile",
+  providesTags: ["RecycledFiles"],
+}),
+
+
     createDirectory: builder.mutation({
       // Define the query endpoint details
       query: ({ dirId = "", newDirname }) => {
@@ -209,6 +215,28 @@ export const directoryApi = createApi({
       ],
     }),
 
+restoreFile: builder.mutation({
+  query: (fileId) => ({
+    url: `/file/restore/${fileId}`,
+    method: "PATCH",
+  }),
+  invalidatesTags: (result, error, { parentDirId }) => [
+    "RecycledFiles",
+    { type: "Directory", id: parentDirId || "root" },
+  ],
+}),
+
+deleteRecycledFile: builder.mutation({
+  query: (fileId) => ({
+    url: `/file/${fileId}`,
+    method: "DELETE",
+  }),
+  invalidatesTags: ["RecycledFiles"],
+}),
+
+
+
+
 
   }),
 });
@@ -217,6 +245,9 @@ export const directoryApi = createApi({
 
 // Export hooks for use in components
 export const {
+  useDeleteRecycledFileMutation
+  useGetRecycledFilesQuery
+  useRestoreFileMutation,
   useGetDirectoryItemsQuery,
   useCreateDirectoryMutation,
   useDeleteDirectoryMutation,
