@@ -8,6 +8,7 @@ export default function RecycleBin() {
   
 
  const { data, isLoading } = useGetRecycledFilesQuery();
+ const files = data?.files ?? [];
 const [restoreFile] = useRestoreFileMutation();
 
 const handleRestore = async (fileId, dirId) => {
@@ -54,7 +55,7 @@ const handleRestore = async (fileId, dirId) => {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : data?.length === 0 ? (
+        ) : files?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400">
             <Trash2 className="w-20 h-20 mb-4 opacity-30" />
             <p className="text-lg">Recycle bin is empty</p>
@@ -63,10 +64,10 @@ const handleRestore = async (fileId, dirId) => {
         ) : (
           <div>
             <p className="text-slate-400 text-sm mb-4">
-              {data?.length} {data?.length === 1 ? 'item' : 'items'}
+              {files?.length} {files?.length === 1 ? 'item' : 'items'}
             </p>
             <div className="space-y-2">
-              {data?.map(file => (
+              {files?.map(file => (
                 <div
                   key={file._id}
                   className="bg-slate-800 border border-slate-700 rounded-lg p-4 hover:bg-slate-750 transition-colors"
