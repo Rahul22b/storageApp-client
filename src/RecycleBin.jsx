@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 import { Trash2, RefreshCw, X, FolderOpen, File, Calendar } from "lucide-react";
+import { directoryApi } from "./api/directoryApi";
 
 export default function RecycleBin() {
   const [recycledFiles, setRecycledFiles] = useState([]);
@@ -13,8 +14,10 @@ export default function RecycleBin() {
       await fetch(`${BASE_URL}/file/restore/${fileId}`, {
         method: 'PATCH',
         credentials: 'include',
+        
       });
       await fetchData();
+      directoryApi.util.invalidateTags(["DirectoryItem"]);
     } catch (error) {
       console.error('Error restoring file:', error);
     } finally {

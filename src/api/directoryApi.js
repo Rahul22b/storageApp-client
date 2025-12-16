@@ -213,6 +213,8 @@ export const directoryApi = createApi({
   }),
 });
 
+
+
 // Export hooks for use in components
 export const {
   useGetDirectoryItemsQuery,

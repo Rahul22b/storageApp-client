@@ -9,6 +9,7 @@ import { DirectoryContext } from "./context/DirectoryContext";
 import { useGetDirectoryItemsQuery,useCreateDirectoryMutation,useDeleteDirectoryMutation,useRenameDirectoryMutation,useDeleteFileMutation,useRenameFileMutation } from "./api/directoryApi";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
+import { directoryApi } from "./api/directoryApi";
 
 // Shimmer Loading Component
 function ShimmerItem() {
@@ -239,7 +240,8 @@ const [deleteFileMutation] = useDeleteFileMutation();
               credentials: "include",
             }
           );
-          refetch();
+          // refetch();
+          directoryApi.util.invalidateTags(["DirectoryItem"]);
         }
         setUploadItem(null);
         // loadDirectory();
