@@ -216,7 +216,7 @@ export const directoryApi = createApi({
     }),
 
 restoreFile: builder.mutation({
-  query: (fileId) => ({
+  query: ({ fileId }) => ({
     url: `/file/restore/${fileId}`,
     method: "PATCH",
   }),
@@ -225,6 +225,7 @@ restoreFile: builder.mutation({
     { type: "DirectoryItem", id: parentDirId || "Root" },
   ],
 }),
+
 
 deleteRecycledFile: builder.mutation({
   query: ({ fileId }) => ({
