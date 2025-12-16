@@ -1,50 +1,51 @@
-import { useState,} from "react";
+import { useState } from "react";
 import { Trash2, FolderOpen, File, Calendar } from "lucide-react";
-import { useRestoreFileMutation ,useGetRecycledFilesQuery,useDeleteRecycledFileMutation} from "./api/directoryApi";
+import {
+  useRestoreFileMutation,
+  useGetRecycledFilesQuery,
+  useDeleteRecycledFileMutation,
+} from "./api/directoryApi";
 
 export default function RecycleBin() {
   const [actionLoading, setActionLoading] = useState(null);
 
-  
+  const { data, isLoading } = useGetRecycledFilesQuery();
+  const files = data?.files ?? [];
+  const [restoreFile] = useRestoreFileMutation();
 
- const { data, isLoading } = useGetRecycledFilesQuery();
- const files = data?.files ?? [];
-const [restoreFile] = useRestoreFileMutation();
+  const [deleteRecycledFile] = useDeleteRecycledFileMutation();
 
+  const handleRestore = async (file) => {
+    setActionLoading(file._id);
+    try {
+      await restoreFile({
+        fileId: file._id,
+        parentDirId: file.parentDirId,
+      }).unwrap();
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
- const [deleteRecycledFile] = useDeleteRecycledFileMutation();
-
-const handleRestore = async (file) => {
-  setActionLoading(file._id);
-  try {
-    await restoreFile({
-      fileId: file._id,
-      parentDirId: file.parentDirId,
-    }).unwrap();
-  } finally {
-    setActionLoading(null);
-  }
-};
-
-const handleDelete = async (file) => {
-  setActionLoading(file._id);
-  try {
-    await deleteRecycledFile({
-      fileId: file._id,
-      parentDirId: file.parentDirId,
-    }).unwrap();
-  } finally {
-    setActionLoading(null);
-  }
-};
-
-
-
- 
+  const handleDelete = async (file) => {
+    setActionLoading(file._id);
+    try {
+      await deleteRecycledFile({
+        fileId: file._id,
+        parentDirId: file.parentDirId,
+      }).unwrap();
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   return (
@@ -72,17 +73,17 @@ const handleDelete = async (file) => {
         ) : (
           <div>
             <p className="text-slate-400 text-sm mb-4">
-              {files?.length} {files?.length === 1 ? 'item' : 'items'}
+              {files?.length} {files?.length === 1 ? "item" : "items"}
             </p>
             <div className="space-y-2">
-              {files?.map(file => (
+              {files?.map((file) => (
                 <div
                   key={file._id}
                   className="bg-slate-800 border border-slate-700 rounded-lg p-4 hover:bg-slate-750 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      {file.type === 'folder' ? (
+                      {file.type === "folder" ? (
                         <FolderOpen className="w-8 h-8 text-yellow-500 flex-shrink-0" />
                       ) : (
                         <File className="w-8 h-8 text-blue-400 flex-shrink-0" />
@@ -98,18 +99,18 @@ const handleDelete = async (file) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
-                     <button
-  onClick={() => handleRestore(file)}
-  disabled={actionLoading === file._id}
->
-  Restore
-</button>
-                     <button
-  onClick={() => handleDelete(file)}
-  disabled={actionLoading === file._id}
->
-  Delete 
-</button>
+                      <button className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded"
+                        onClick={() => handleRestore(file)}
+                        disabled={actionLoading === file._id}
+                      >
+                        Restore
+                      </button>
+                      <button className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
+                        onClick={() => handleDelete(file)}
+                        disabled={actionLoading === file._id}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>

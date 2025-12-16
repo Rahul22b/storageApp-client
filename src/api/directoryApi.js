@@ -171,6 +171,8 @@ export const directoryApi = createApi({
       // Invalidate the parent directory's tag to update file counts/size/etc.
       invalidatesTags: (result, error, { parentId }) => [
         { type: "DirectoryItem", id: parentId },
+        "RecycledFiles"
+        
       ],
     }),
 
