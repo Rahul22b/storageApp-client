@@ -9,7 +9,7 @@ const baseQuery = fetchBaseQuery({
 export const directoryApi = createApi({
   reducerPath: "directoryApi",
   baseQuery: baseQuery,
-  tagTypes: ["DirectoryItem"],
+  tagTypes: ["DirectoryItem", "RecycledFiles"],
   endpoints: (builder) => ({
 
     getDirectoryItems: builder.query ({
@@ -224,7 +224,7 @@ restoreFile: builder.mutation({
   }),
   invalidatesTags: (result, error, { parentDirId }) => [
     "RecycledFiles",
-    { type: "DirectoryItem", id: parentDirId || "Root" },
+    { type: "DirectoryItem", id: parentDirId || "ROOT" },
   ],
 }),
 
