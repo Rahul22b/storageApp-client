@@ -1,5 +1,5 @@
 import { useState,} from "react";
-import { Trash2, RefreshCw, X, FolderOpen, File, Calendar } from "lucide-react";
+import { Trash2, FolderOpen, File, Calendar } from "lucide-react";
 import { useRestoreFileMutation ,useGetRecycledFilesQuery,useDeleteRecycledFileMutation} from "./api/directoryApi";
 
 export default function RecycleBin() {
@@ -11,25 +11,33 @@ export default function RecycleBin() {
  const files = data?.files ?? [];
 const [restoreFile] = useRestoreFileMutation();
 
-const handleRestore = async (fileId, dirId) => {
-  setActionLoading(fileId);
+
+ const [deleteRecycledFile] = useDeleteRecycledFileMutation();
+
+const handleRestore = async (file) => {
+  setActionLoading(file._id);
   try {
-    await restoreFile({ fileId, parentDirId: dirId }).unwrap();
+    await restoreFile({
+      fileId: file._id,
+      parentDirId: file.parentDirId,
+    }).unwrap();
   } finally {
     setActionLoading(null);
   }
 };
 
- const [deleteRecycledFile] = useDeleteRecycledFileMutation();
+const handleDelete = async (file) => {
+  setActionLoading(file._id);
+  try {
+    await deleteRecycledFile({
+      fileId: file._id,
+      parentDirId: file.parentDirId,
+    }).unwrap();
+  } finally {
+    setActionLoading(null);
+  }
+};
 
-  const handleDelete = async (fileId) => {
-    setActionLoading(fileId);
-    try {
-      await deleteRecycledFile(fileId).unwrap();
-    } finally {
-      setActionLoading(null);
-    }
-  };
 
 
  
@@ -90,22 +98,18 @@ const handleRestore = async (fileId, dirId) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
-                      <button
-                        onClick={() => handleRestore(file._id)}
-                        disabled={actionLoading === file._id}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed rounded-lg transition-colors text-sm font-medium"
-                      >
-                        <RefreshCw className={`w-4 h-4 ${actionLoading === file._id ? 'animate-spin' : ''}`} />
-                        Restore
-                      </button>
-                      <button
-                        onClick={() => handleDelete(file._id)}
-                        disabled={actionLoading === file._id}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-slate-600 disabled:cursor-not-allowed rounded-lg transition-colors text-sm font-medium"
-                      >
-                        <X className="w-4 h-4" />
-                        Delete
-                      </button>
+                     <button
+  onClick={() => handleRestore(file)}
+  disabled={actionLoading === file._id}
+>
+  Restore
+</button>
+                     <button
+  onClick={() => handleDelete(file)}
+  disabled={actionLoading === file._id}
+>
+  Delete 
+</button>
                     </div>
                   </div>
                 </div>
