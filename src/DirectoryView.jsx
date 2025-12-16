@@ -5,7 +5,7 @@ import DirectoryHeader from "./components/DirectoryHeader";
 import CreateDirectoryModal from "./components/CreateDirectoryModal";
 import RenameModal from "./components/RenameModal";
 import DirectoryList from "./components/DirectoryList";
-import { DirectoryContext } from "./context/DirectoryContext";
+import { DirectoryContext } from "./context/DirIectoryContext";
 import { useGetDirectoryItemsQuery,useCreateDirectoryMutation,useDeleteDirectoryMutation,useRenameDirectoryMutation,useDeleteFileMutation,useRenameFileMutation } from "./api/directoryApi";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
@@ -240,8 +240,8 @@ const [deleteFileMutation] = useDeleteFileMutation();
               credentials: "include",
             }
           );
-          // refetch();
-          directoryApi.util.invalidateTags(["DirectoryItem"]);
+          refetch();
+          // directoryApi.util.invalidateTags(["DirectoryItem"]);
         }
         setUploadItem(null);
         // loadDirectory();
@@ -413,7 +413,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
 
           {/* Main Content Area */}
           <div className="pb-8">
-            {isLoading  || isFetching ? (
+            {isLoading ? (
               <ShimmerLoading />
             ) : combinedItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 px-4">
