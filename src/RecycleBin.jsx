@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState} from "react";
+import { useParams } from "react-router-dom";
 import { Trash2, FolderOpen, File, Calendar } from "lucide-react";
 import {
   useRestoreFileMutation,
@@ -7,11 +8,15 @@ import {
   useRestoreDirectoryMutation,
   useDeleteRecycledDirectoryMutation,
 } from "./api/directoryApi";
+import { useNavigate } from "react-router-dom";
+
 
 export default function RecycleBin() {
+  const { dirId } = useParams();
+  const navigate=useNavigate();
   const [actionLoading, setActionLoading] = useState(null);
 
-  const { data, isLoading } = useGetRecycledFilesQuery();
+  const { data, isLoading } = useGetRecycledFilesQuery(dirId);
   const files = data?.files ?? [];
   const directories = data?.directories ?? [];
 
@@ -21,29 +26,52 @@ export default function RecycleBin() {
   const [deleteRecycledFile] = useDeleteRecycledFileMutation();
   const [deleteRecycledDirectory] = useDeleteRecycledDirectoryMutation();
 
-  const handleRestore = async (file) => {
-    setActionLoading(file._id);
-    try {
-      await restoreFile({
-        fileId: file._id,
-        parentDirId: file.parentDirId,
-      }).unwrap();
-    } finally {
-      setActionLoading(null);
-    }
-  };
+ const handleRestore = async (file) => {
+  setActionLoading(file._id);
 
-  const handleRestoreDirectory=async (directory) => {
-    setActionLoading(directory._id);
-    try {
-      await restoreDirectory({
-        directoryId: directory._id,
-        parentDirId: directory.parentDirId,
-      }).unwrap();
-    } finally {
-      setActionLoading(null);
+  try {
+    const response = await restoreFile({
+      fileId: file._id,
+      parentDirId: file.parentDirId,
+    }).unwrap();
+
+    console.log("success:", response);
+  } catch (err) {
+    // RTK Query error shape
+    if (err?.status === 400) {
+      alert(err?.data?.error || "Restore failed");
+    } else {
+      alert("Something went wrong");
     }
-  };
+  } finally {
+    setActionLoading(null);
+  }
+};
+
+
+  const handleRestoreDirectory = async (directory) => {
+  setActionLoading(directory._id);
+
+  try {
+    const res = await restoreDirectory({
+      directoryId: directory._id,
+      parentDirId: directory.parentDirId,
+    }).unwrap();
+
+    console.log("Directory restored:", res);
+  } catch (err) {
+    if (err?.status === 400) {
+      alert(err?.data?.error || "Cannot restore directory");
+    } else if (err?.status === 404) {
+      alert("Directory not found");
+    } else {
+      alert("Something went wrong while restoring");
+    }
+  } finally {
+    setActionLoading(null);
+  }
+};
+
 
   const handleDelete = async (file) => {
     setActionLoading(file._id);
@@ -56,6 +84,8 @@ export default function RecycleBin() {
       setActionLoading(null);
     }
   };
+
+ 
 
   const handleDeleteDirectory = async (directory) => {
     setActionLoading(directory._id);
@@ -95,7 +125,7 @@ export default function RecycleBin() {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : files?.length === 0 ? (
+        ) : data?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400">
             <Trash2 className="w-20 h-20 mb-4 opacity-30" />
             <p className="text-lg">Recycle bin is empty</p>
@@ -155,7 +185,7 @@ export default function RecycleBin() {
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <FolderOpen className="w-8 h-8 text-yellow-500 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{directory.name}</p>
+                        <p  className="font-medium truncate" onClick={() => { navigate(`/bin/${directory._id}`)}} >{directory.name}</p>
                         {directory.deletedAt && (
                           <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
                             <Calendar className="w-3 h-3" />

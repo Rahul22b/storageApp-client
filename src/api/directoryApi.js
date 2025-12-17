@@ -22,7 +22,7 @@ export const directoryApi = createApi({
     }),
 
     getRecycledFiles: builder.query({
-  query: () => "/file/recycledFile",
+  query: (parentDirId = "") => `/file/recycledFile/${parentDirId}`,
   providesTags: ["RecycledFiles"],
 }),
 
