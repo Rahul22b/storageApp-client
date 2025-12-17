@@ -107,7 +107,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
   if(error){
     if(error.status===401) navigate("/login");
     else {setErrorMessage(error.data?.error || error.message);
-      toast.error(error.data?.error || error.message);
+      toast.error(error.data?.error || error.message || "Something went wrong.");
     setTimeout(() => setErrorMessage(""), 3000);}
 
   }
@@ -305,7 +305,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
       setNewDirname("New Folder");
       toast.success("Directory created successfully");
     } catch (err) {
-      toast.error(err.data?.error || err.message);
+      toast.error(err.data?.error || err.message || "not created");
       setTimeout(() => setErrorMessage(""), 3000);
     }
   }

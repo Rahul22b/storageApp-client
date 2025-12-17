@@ -29,7 +29,7 @@ const Login = () => {
       const data = await loginUser(formData);
       
       if (data.error) {
-        toast.error(data.error);
+        toast.error(data.error || "Login failed");
         setServerError(data.error);
       } else {
         toast.success("Logged in successfully");

@@ -1,69 +1,52 @@
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback } from "react";
 
-export default function ParticlesBackground({ enabled = true }) {
-  const particlesRef = useRef(null);
-
+export default function ParticlesBackground() {
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine);
   }, []);
 
-  const particlesLoaded = useCallback((container) => {
-    particlesRef.current = container;
-  }, []);
-
-  // Pause / Resume particles
-  useEffect(() => {
-    if (!particlesRef.current) return;
-
-    if (!enabled) {
-      particlesRef.current.pause();
-    } else {
-      particlesRef.current.play();
-    }
-  }, [enabled]);
-
   return (
     <Particles
       init={particlesInit}
-      loaded={particlesLoaded}
       options={{
-        fullScreen: false,
+        fullScreen: false, // VERY IMPORTANT
         fpsLimit: 60,
-
         particles: {
           number: {
-            value: 25,
-            density: { enable: true, area: 1000 },
+            value: 40,
+            density: { enable: true, area: 800 },
           },
-          color: {
-            value: ["#60a5fa", "#a5b4fc", "#38bdf8"],
-          },
-          opacity: {
-            value: { min: 0.05, max: 0.15 },
-          },
-          size: {
-            value: { min: 6, max: 14 },
-          },
+          color: { value: "#ffffff" },
+          opacity: { value: 0.15 },
+          size: { value: { min: 1, max: 2 } },
           move: {
             enable: true,
-            direction: "top",
-            speed: 0.4,
-            outModes: { default: "out" },
+            speed: 0.3,
+            outModes: "out",
           },
-          stroke: {
-            width: 1,
-            color: "rgba(255,255,255,0.1)",
+          links: {
+            enable: true,
+            distance: 120,
+            opacity: 0.1,
+            color: "#ffffff",
           },
         },
-
+        interactivity: {
+          events: {
+            onHover: { enable: true, mode: "repulse" },
+          },
+          modes: {
+            repulse: { distance: 80 },
+          },
+        },
         detectRetina: true,
       }}
       style={{
         position: "absolute",
         inset: 0,
-        zIndex: 0,
+        zIndex: 0, // behind content
       }}
     />
   );
