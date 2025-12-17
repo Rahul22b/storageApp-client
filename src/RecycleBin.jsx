@@ -4,6 +4,8 @@ import {
   useRestoreFileMutation,
   useGetRecycledFilesQuery,
   useDeleteRecycledFileMutation,
+  useRestoreDirectoryMutation,
+  useDeleteRecycledDirectoryMutation,
 } from "./api/directoryApi";
 
 export default function RecycleBin() {
@@ -11,9 +13,13 @@ export default function RecycleBin() {
 
   const { data, isLoading } = useGetRecycledFilesQuery();
   const files = data?.files ?? [];
+  const directories = data?.directories ?? [];
+
   const [restoreFile] = useRestoreFileMutation();
+  const [restoreDirectory] = useRestoreDirectoryMutation();
 
   const [deleteRecycledFile] = useDeleteRecycledFileMutation();
+  const [deleteRecycledDirectory] = useDeleteRecycledDirectoryMutation();
 
   const handleRestore = async (file) => {
     setActionLoading(file._id);
@@ -21,6 +27,18 @@ export default function RecycleBin() {
       await restoreFile({
         fileId: file._id,
         parentDirId: file.parentDirId,
+      }).unwrap();
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRestoreDirectory=async (directory) => {
+    setActionLoading(directory._id);
+    try {
+      await restoreDirectory({
+        directoryId: directory._id,
+        parentDirId: directory.parentDirId,
       }).unwrap();
     } finally {
       setActionLoading(null);
@@ -38,6 +56,19 @@ export default function RecycleBin() {
       setActionLoading(null);
     }
   };
+
+  const handleDeleteDirectory = async (directory) => {
+    setActionLoading(directory._id);
+    try {
+      await deleteRecycledDirectory({
+        directoryId: directory._id,
+        parentDirId: directory.parentDirId,
+      }).unwrap();
+    }
+    finally {
+      setActionLoading(null);
+    }
+  }
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -115,6 +146,42 @@ export default function RecycleBin() {
                   </div>
                 </div>
               ))}
+              {directories?.map((directory) => (
+                <div
+                  key={directory._id}
+                  className="bg-slate-800 border border-slate-700 rounded-lg p-4 hover:bg-slate-750 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <FolderOpen className="w-8 h-8 text-yellow-500 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{directory.name}</p>
+                        {directory.deletedAt && (
+                          <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>Deleted {formatDate(directory.deletedAt)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <button className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded"
+                        onClick={() => handleRestoreDirectory(directory)}
+                        disabled={actionLoading === directory._id}
+                      >
+                        Restore
+                      </button>
+                      <button className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
+                        onClick={() => handleDeleteDirectory(directory)}
+                        disabled={actionLoading === directory._id}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
             </div>
           </div>
         )}

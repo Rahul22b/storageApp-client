@@ -228,6 +228,18 @@ restoreFile: builder.mutation({
   ],
 }),
 
+restoreDirectory: builder.mutation({
+  query: ({ directoryId }) => ({
+    url: `/directory/restore/${directoryId}`,
+    method: "PATCH",
+  }),
+  invalidatesTags: (result, error, { parentDirId }) => [
+    "RecycledFiles",
+    { type: "DirectoryItem", id: parentDirId || "ROOT" },
+  ],
+}),
+
+
 
 deleteRecycledFile: builder.mutation({
   query: ({ fileId }) => ({
@@ -240,10 +252,16 @@ deleteRecycledFile: builder.mutation({
   ],
 }),
 
-
-
-
-
+deleteRecycledDirectory: builder.mutation({
+  query: ({ directoryId }) => ({
+    url: `/directory/restore/${directoryId}`,
+    method: "DELETE",
+  }),
+  invalidatesTags: (result, error, { parentDirId }) => [
+    "RecycledFiles",
+    { type: "DirectoryItem", id: parentDirId || "ROOT" },
+  ],
+})
 
   }),
 });
@@ -252,6 +270,8 @@ deleteRecycledFile: builder.mutation({
 
 // Export hooks for use in components
 export const {
+  useDeleteRecycledDirectoryMutation,
+  useRestoreDirectoryMutation,
   useDeleteRecycledFileMutation,
   useGetRecycledFilesQuery,
   useRestoreFileMutation,
