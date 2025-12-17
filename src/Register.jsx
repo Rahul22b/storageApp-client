@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginWithGoogle, sendOtp} from "./api/authApi";
 import { registerUser } from "./api/userApi";
+import toast from "react-hot-toast";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -43,6 +44,7 @@ const Register = () => {
 
   const handleSendOtp = async () => {
     if (!formData.email) {
+      toast.error("Please enter your email first.");
       setServerError("Please enter your email first."); // Use serverError for input validation too
       return;
     }
@@ -58,12 +60,14 @@ const Register = () => {
       await sendOtp(formData.email); // Success state
       setOtpSent(true);
       setCountdown(60);
+      toast.success("OTP sent to your email.");
     } catch (err) {
       // 2. Log the error for debugging (this is where you see the "email already exist" message)
       console.error(
         "OTP Send Error:",
         err.response?.data?.error || err.message
       );
+      toast.error(err.response?.data?.error || "Failed to connect to server.");
 
       // 3. Extract the error and store it in the state variable rendered on the display
       const errorMessage =
@@ -99,9 +103,11 @@ const Register = () => {
     try {
       await registerUser({ ...formData, otp });
       setIsSuccess(true);
+      toast.success("Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {
-      console.log("err", err);
+      toast.error(err.response?.data?.error || "Something went wrong.");
+      // console.log("err", err);
       setServerError(err.response?.data?.error || "Something went wrong.");
     }
   };

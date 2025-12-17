@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { useEffect } from 'react';
+import  { useState, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { CheckCircle, XCircle, Loader,Sparkles } from 'lucide-react';
 
 // Static Plan Data
@@ -113,19 +113,19 @@ const PlanCard = ({ plan, billingCycle, index }) => {
       const data = await response.json();
 
       if (response.ok) {
+        toast.success("Subscription started successfully!");
         window.location.href = data.shortUrl;
       } 
       
       else {
-        // Handle server/validation errors (e.g., plan not found)
         console.error('Subscription setup failed:', data.error);
-        // Instead of alert(), use a small state message or a modal in a real app
-        alert(`Failed to start subscription: ${data.error || 'Server error'}`);
+        toast.error(`Failed to start subscription: ${data.error || 'Server error'}`);
       }
       
     } catch (error) {
       console.error("Network error during subscription setup:", error);
-      alert("A network error occurred. Please try again.");
+      toast.error("A network error occurred. Please try again.");
+      // alert("A network error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }

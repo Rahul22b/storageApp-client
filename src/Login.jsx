@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginWithGoogle } from "./api/authApi";
 import { loginUser } from "./api/userApi";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -24,10 +25,17 @@ const Login = () => {
     setIsLoading(true);
     try {
       const data = await loginUser(formData);
-      if (data.error) setServerError(data.error);
-      else navigate("/");
+      
+      if (data.error) {
+        toast.error(data.error);
+        setServerError(data.error);
+      } else {
+        toast.success("Logged in successfully");
+        navigate("/");
+      };
     } catch (err) {
       console.error("Login error:", err);
+      toast.error(err.response?.data?.error || "Something went wrong.");
       setServerError(err.response?.data?.error || "Something went wrong.");
     } 
     finally {

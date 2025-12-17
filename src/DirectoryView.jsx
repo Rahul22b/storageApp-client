@@ -9,6 +9,7 @@ import { DirectoryContext } from "./context/DirectoryContext.js";
 import { useGetDirectoryItemsQuery,useCreateDirectoryMutation,useDeleteDirectoryMutation,useRenameDirectoryMutation,useDeleteFileMutation,useRenameFileMutation } from "./api/directoryApi";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
+import toast from "react-hot-toast";
 
 // Shimmer Loading Component
 function ShimmerItem() {
@@ -106,6 +107,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
   if(error){
     if(error.status===401) navigate("/login");
     else {setErrorMessage(error.data?.error || error.message);
+      toast.error(error.data?.error || error.message);
     setTimeout(() => setErrorMessage(""), 3000);}
 
   }
@@ -161,7 +163,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
     if (!file) return;
 
     if (uploadItem?.isUploading) {
-      setErrorMessage("An upload is already in progress. Please wait.");
+      toast.error("An upload is already in progress. Please wait.");
       setTimeout(() => setErrorMessage(""), 3000);
       e.target.value = "";
       return;
@@ -199,13 +201,16 @@ const [deleteFileMutation] = useDeleteFileMutation();
     )
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          toast.error("Failed to get upload URL from server.");
+          // throw new Error("Network response was not ok");
         }
         return response.json();
       })
       .catch((error) => {
-        console.error("Error:", error);
-        throw error;
+        // toast.error("Network error while getting upload URL.");
+        toast.error(error.message || "Network error while getting upload URL.");
+        // console.error("Error:", error);
+        // throw error;
       });
   }
 
@@ -239,6 +244,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
           // refetch();
           await refetch();
         } else {
+          toast.error("Upload failed. Please try again.");
           setErrorMessage("Upload failed. Please try again.");
 
         }
@@ -259,7 +265,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
 
       xhr.send(item.file);
     } catch (error) {
-      setErrorMessage("Failed to initiate upload.");
+      toast.error("Failed to initiate upload.");
       setFilesList((prev) => prev.filter((f) => f.id !== item.id));
       setUploadItem(null);
       setTimeout(() => setErrorMessage(""), 3000);
@@ -285,7 +291,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
       else deleteFileMutation({id:item.id,parentId}).unwrap();
 
     } catch (err) {
-      setErrorMessage(err.data?.error || err.message || "not created");
+      toast.error(err.data?.error || err.message || "not created");
       setTimeout(() => setErrorMessage(""), 3000);
     }
   }
@@ -297,7 +303,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
       await createDirectoryMutation({dirId,newDirname}).unwrap();
       setNewDirname("New Folder");
     } catch (err) {
-      setErrorMessage(err.data?.error || err.message);
+      toast.error(err.data?.error || err.message);
       setTimeout(() => setErrorMessage(""), 3000);
     }
   }
@@ -314,10 +320,10 @@ const [deleteFileMutation] = useDeleteFileMutation();
     const parentId=dirId || "";
     
     if (!renameValue || renameValue.trim() === "") {
-    setErrorMessage("Directory name cannot be empty. Please enter a valid name.");
-    setTimeout(() => setErrorMessage(""), 3000);
-    return; // Stop the function before calling the mutation
-  }
+      toast.error("Directory name cannot be empty. Please enter a valid name.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return; // Stop the function before calling the mutation
+    }
   setShowRenameModal(false);
     try {
       if (renameType === "file") await renameFileMutation({id:renameId,newFilename:renameValue,parentId:parentId}).unwrap();
@@ -329,6 +335,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
       setRenameType(null);
       setRenameId(null);
     } catch (err) {
+      toast.error(err.data?.error || err.message || "Rename failed");
       setErrorMessage(err.response?.data?.error || err.message);
       setTimeout(() => setErrorMessage(""), 3000);
     }

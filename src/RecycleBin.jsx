@@ -1,4 +1,5 @@
 import { useState} from "react";
+import {  toast } from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { Trash2, FolderOpen, File, Calendar } from "lucide-react";
 import {
@@ -30,18 +31,18 @@ export default function RecycleBin() {
   setActionLoading(file._id);
 
   try {
-    const response = await restoreFile({
+     await restoreFile({
       fileId: file._id,
       parentDirId: file.parentDirId,
     }).unwrap();
-
-    console.log("success:", response);
+      toast.success("File restored successfully");
+    // console.log("success:", response);
   } catch (err) {
     // RTK Query error shape
     if (err?.status === 400) {
-      alert(err?.data?.error || "Restore failed");
+      toast.error(err?.data?.error || "Restore failed");
     } else {
-      alert("Something went wrong");
+      toast.error("Something went wrong");
     }
   } finally {
     setActionLoading(null);
@@ -53,19 +54,20 @@ export default function RecycleBin() {
   setActionLoading(directory._id);
 
   try {
-    const res = await restoreDirectory({
+     await restoreDirectory({
       directoryId: directory._id,
       parentDirId: directory.parentDirId,
     }).unwrap();
 
-    console.log("Directory restored:", res);
+    // console.log("Directory restored:", res);
+    toast.success("Directory restored successfully");
   } catch (err) {
     if (err?.status === 400) {
-      alert(err?.data?.error || "Cannot restore directory");
+      toast.error(err?.data?.error || "Cannot restore directory");
     } else if (err?.status === 404) {
-      alert("Directory not found");
+      toast.error("Directory not found");
     } else {
-      alert("Something went wrong while restoring");
+      toast.error("Something went wrong while restoring");
     }
   } finally {
     setActionLoading(null);
@@ -80,6 +82,7 @@ export default function RecycleBin() {
         fileId: file._id,
         parentDirId: file.parentDirId,
       }).unwrap();
+      toast.success("File deleted permanently");
     } finally {
       setActionLoading(null);
     }
