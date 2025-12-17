@@ -241,6 +241,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
               credentials: "include",
             }
           );
+          toast.success("File uploaded successfully!");
           // refetch();
           await refetch();
         } else {
@@ -302,6 +303,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
     try {
       await createDirectoryMutation({dirId,newDirname}).unwrap();
       setNewDirname("New Folder");
+      toast.success("Directory created successfully");
     } catch (err) {
       toast.error(err.data?.error || err.message);
       setTimeout(() => setErrorMessage(""), 3000);
