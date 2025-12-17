@@ -4,6 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { loginWithGoogle, sendOtp} from "./api/authApi";
 import { registerUser } from "./api/userApi";
 import toast from "react-hot-toast";
+import ParticlesBackground from "./components/ParticlesBackground";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ const Register = () => {
   });
   
   const [serverError, setServerError] = useState("");
+  const isHeavyUpload = false; // Placeholder, replace with actual logic if needed
   const [isSuccess, setIsSuccess] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -113,8 +115,9 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black p-6">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-black p-6 relative overflow-hidden">
+      <ParticlesBackground enabled={!isHeavyUpload}/>
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">
             Create Account
