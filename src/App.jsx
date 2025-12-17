@@ -22,7 +22,7 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/bin",
+    path: "/bin/:dirId?",
     element: <RecycleBin />,
   },
   {
