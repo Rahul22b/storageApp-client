@@ -7,7 +7,7 @@ import UsersPage from "./UsersPage";
 import Subscription from "./Subscription";
 import CustomerPortal from "./CustomerPotal";
 import RecycleBin from "./RecycleBin";
-import GuestPage from "./components/guestPage.jsx";
+import GuestPage from "./components/GuestPage.jsx";
 
 const router = createBrowserRouter([
   {
