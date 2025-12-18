@@ -290,6 +290,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
       if(item.isDirectory) await deleteDirectoryMutation({id:item.id,parentId:parentId}).unwrap();
       // else await deleteFile(item.id);
       else deleteFileMutation({id:item.id,parentId}).unwrap();
+      toast.success(`${item.isDirectory ? "Directory" : "File"} deleted successfully`);
 
     } catch (err) {
       toast.error(err.data?.error || err.message || "not created");

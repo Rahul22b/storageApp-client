@@ -97,6 +97,7 @@ export default function RecycleBin() {
         directoryId: directory._id,
         parentDirId: directory.parentDirId,
       }).unwrap();
+      toast.success("Directory deleted permanently");
     }
     finally {
       setActionLoading(null);
@@ -113,9 +114,9 @@ export default function RecycleBin() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <div className="bg-slate-800 border-b border-slate-700 px-6 py-4">
+      <div className="bg-slate-950 border-b border-slate-700 px-6 py-4">
         <div className="flex items-center gap-3">
           <Trash2 className="w-6 h-6 text-slate-400" />
           <h1 className="text-xl font-semibold">Recycle Bin</h1>
