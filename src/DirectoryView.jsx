@@ -105,9 +105,13 @@ const [deleteFileMutation] = useDeleteFileMutation();
 
  useEffect(()=>{
   if(error){
-    if(error.status===401) navigate("/login");
+    if(error.status===401){
+      toast.error("Please login to continue.");
+      navigate("/guest");
+    }
     else {setErrorMessage(error.data?.error || error.message);
       toast.error(error.data?.error || error.message || "Something went wrong.");
+       navigate("/guest");
     setTimeout(() => setErrorMessage(""), 3000);}
 
   }

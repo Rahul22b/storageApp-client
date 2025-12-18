@@ -7,12 +7,20 @@ import UsersPage from "./UsersPage";
 import Subscription from "./Subscription";
 import CustomerPortal from "./CustomerPotal";
 import RecycleBin from "./RecycleBin";
+import GuestPage from "./components/guestPage.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <DirectoryView />,
   },
+
+   {
+    path: "/guest",
+    element: < GuestPage/>,
+  },
+
+
   {
     path: "/register",
     element: <Register />,
