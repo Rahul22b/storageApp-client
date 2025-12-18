@@ -4,7 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { loginWithGoogle } from "./api/authApi";
 import { loginUser } from "./api/userApi";
 import toast from "react-hot-toast";
-import ParticlesBackground from "./components/ParticlesBackground";
+// import ParticlesBackground from "./components/ParticlesBackground";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ const Login = () => {
     password: "",
   });
   const [serverError, setServerError] = useState("");
-  const isHeavyUpload = false; // Placeholder, replace with actual logic if needed
+  // const isHeavyUpload = false; // Placeholder, replace with actual logic if needed
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,7 +49,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-6 relative overflow-hidden">
-      <ParticlesBackground enabled={!isHeavyUpload}/>
+      {/* <ParticlesBackground enabled={!isHeavyUpload}/> */}
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">Welcome</h1>
