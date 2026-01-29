@@ -8,6 +8,7 @@ import Subscription from "./Subscription";
 import CustomerPortal from "./CustomerPotal";
 import RecycleBin from "./RecycleBin";
 import GuestPage from "./components/GuestPage.jsx";
+import SettingPage from "./SettingPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,11 @@ const router = createBrowserRouter([
    {
     path: "/guest",
     element: < GuestPage/>,
+  },
+
+  {
+path: "/settings",
+element: <SettingPage/>,
   },
 
 

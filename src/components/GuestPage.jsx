@@ -144,16 +144,12 @@ export default function GuestLandingPage() {
 
         {/* Hero Image Placeholder */}
         <div className="mt-16 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-2xl p-8 shadow-2xl border border-gray-800">
-          <div className="bg-gray-900 rounded-lg p-8 shadow-lg">
-            <div className="grid grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-gray-800 rounded-lg h-24 flex items-center justify-center border border-gray-700 hover:border-blue-500/50 transition">
-                  <Cloud className="w-8 h-8 text-gray-600" />
-                </div>
-              ))}
+            <div className='flex justify-center'>Front View</div>
+            <div className="overflow-hidden rounded-lg border border-gray-700 shadow-lg">
+             <img src="public/frontView.png" alt="dd"  width="100%" height="auto"/>
             </div>
           </div>
-        </div>
+       
       </section>
 
       {/* Features Section */}

@@ -12,6 +12,7 @@ import {
   ShoppingCart,
   ChevronDown,
   HardDrive
+  , Settings
 } from "lucide-react";
 
 // Mock API functions for demo
@@ -249,10 +250,19 @@ function DirectoryHeader({
                      <Link
                         to="/bin"
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:bg-gray-700 transition-colors group"
-                        onClick={()=>{console.log('hello')}}
+                        onClick={() => setShowUserMenu(false)}
                       >
                         <Trash className="w-4 h-4 text-gray-400 group-hover:text-red-400" />
                         <span className="text-sm">Recycle Bin</span>
+                      </Link>
+
+                      <Link
+                        to="/settings"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:bg-gray-700 transition-colors group"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <Settings className="w-4 h-4 text-gray-400 group-hover:text-blue-400" />
+                        <span className="text-sm">Settings</span>
                       </Link>
 
                     </div>
