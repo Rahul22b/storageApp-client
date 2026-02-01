@@ -146,7 +146,7 @@ export default function GuestLandingPage() {
         <div className="mt-16 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-2xl p-8 shadow-2xl border border-gray-800">
             <div className='flex justify-center'>Front View</div>
             <div className="overflow-hidden rounded-lg border border-gray-700 shadow-lg">
-             <img src="public/frontView.png" alt="dd"  width="100%" height="auto"/>
+             <img src="/frontView.png" alt="dd"  width="100%" height="auto"/>
             </div>
           </div>
        
