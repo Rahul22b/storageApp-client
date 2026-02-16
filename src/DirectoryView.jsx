@@ -68,7 +68,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
   const [renameFileMutation]=useRenameFileMutation();
   const [filesList, setFilesList] = useState([]);
   const [directoriesList, setDirectoriesList] = useState([]);
-  const [directoryName,setDirectoryName]=useState("My Drive")
+  const [directoryName,setDirectoryName]=useState("My storage Drive")
   const [errorMessage, setErrorMessage] = useState("");
   const [showCreateDirModal, setShowCreateDirModal] = useState(false);
   const [newDirname, setNewDirname] = useState("New Folder");
@@ -92,11 +92,11 @@ const [deleteFileMutation] = useDeleteFileMutation();
     
   useEffect(() => {
     if (directoryData) {
-      setDirectoryName(dirId ? directoryData.name || "My Drive" : "My Drive");
+      setDirectoryName(dirId ? directoryData.name || "My storage Drive" : "My Drive");
       setDirectoriesList(directoryData.directories ? [...directoryData.directories].reverse() : []);
       setFilesList(directoryData.files ? [...directoryData.files].reverse() : []);
     } else if (!dirId) {
-      setDirectoryName("My Drive");
+      setDirectoryName("My  storage Drive");
       setDirectoriesList([]);
       setFilesList([]);
     }
