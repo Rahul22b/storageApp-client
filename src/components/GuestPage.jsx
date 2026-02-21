@@ -303,7 +303,7 @@ export default function GuestLandingPage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2027 MY Life sana . All rights reserved.</p>
+            <p>&copy; 2027 MY darling sana . All rights reserved.</p>
           </div>
         </div>
       </footer>
