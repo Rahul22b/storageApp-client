@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   fetchAllUsers,
@@ -13,6 +13,29 @@ export default function UsersPage() {
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState("User");
   const navigate = useNavigate();
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const data = await fetchAllUsers();
+      setUsers(data);
+    } catch (err) {
+      if (err.response?.status === 403) navigate("/");
+      else if (err.response?.status === 401) navigate("/login");
+      else console.error("Fetching users failed:", err);
+    }
+  }, [navigate]);
+
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const data = await fetchUser();
+      setUserName(data.name);
+      setUserEmail(data.email);
+      setUserRole(data.role);
+    } catch (err) {
+      if (err.response?.status === 401) navigate("/login");
+      else console.error("Fetching user failed:", err);
+    }
+  }, [navigate]);
 
   const logoutUser = async (user) => {
     const confirmed = confirm(`You are about to logout ${user.email}`);
@@ -39,30 +62,7 @@ export default function UsersPage() {
   useEffect(() => {
     fetchUsers();
     fetchCurrentUser();
-  }, []);
-
-  async function fetchUsers() {
-    try {
-      const data = await fetchAllUsers();
-      setUsers(data);
-    } catch (err) {
-      if (err.response?.status === 403) navigate("/");
-      else if (err.response?.status === 401) navigate("/login");
-      else console.error("Fetching users failed:", err);
-    }
-  }
-
-  async function fetchCurrentUser() {
-    try {
-      const data = await fetchUser();
-      setUserName(data.name);
-      setUserEmail(data.email);
-      setUserRole(data.role);
-    } catch (err) {
-      if (err.response?.status === 401) navigate("/login");
-      else console.error("Fetching user failed:", err);
-    }
-  }
+  }, [fetchUsers, fetchCurrentUser]);
 
   return (
     <div className="max-w-5xl mt-10 mx-4">

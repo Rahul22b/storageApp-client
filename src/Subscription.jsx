@@ -129,7 +129,7 @@ const PlanCard = ({ plan, billingCycle, index }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [plan, planId, billingCycle, isLoading]);
+  }, [plan, planId, isLoading]);
 
   const buttonText = isLoading ? 'Processing...' : (plan.name === 'Basic' ? 'Upgrade to Basic' : 'Go Premium');
 
@@ -277,7 +277,7 @@ const PlanCard = ({ plan, billingCycle, index }) => {
   );
 };
 
-const subscription = () => {
+const Subscription = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
   return (
@@ -413,4 +413,4 @@ const subscription = () => {
   );
 };
 
-export default subscription;
+export default Subscription;

@@ -13,9 +13,7 @@ export const formatSize = (bytes = 0) => {
 };
 
 function DetailsPopup({ item, onClose }) {
-  if (!item) return null;
-
-  const [details, setDetails] = useState({
+  const [details] = useState({
     path: "/",
     size: 0,
     createdAt: new Date().toLocaleString(),
@@ -24,9 +22,6 @@ function DetailsPopup({ item, onClose }) {
     numberOfFolders: 0,
   });
 
-  const { id, name, isDirectory, size, createdAt, updatedAt } = item;
-  const { path, numberOfFiles, numberOfFolders } = details;
-
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") onClose();
@@ -34,6 +29,11 @@ function DetailsPopup({ item, onClose }) {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
+
+  if (!item) return null;
+
+  const { name, isDirectory, size, createdAt, updatedAt } = item;
+  const { path, numberOfFiles, numberOfFolders } = details;
 
   const DetailRow = ({ icon: Icon, label, value }) => (
     <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800/70 transition-colors">

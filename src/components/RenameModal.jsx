@@ -28,7 +28,7 @@ function RenameModal({
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [onClose, renameType, renameValue]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

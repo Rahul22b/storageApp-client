@@ -49,7 +49,7 @@ function DirectoryHeader({
         setUsedStorageInBytes(user.usedStorageInBytes);
         setUserPicture(user.picture || "");
         setLoggedIn(true);
-      } catch (err) {
+      } catch {
         setLoggedIn(false);
         setUserName("Guest User");
         setUserEmail("guest@example.com");

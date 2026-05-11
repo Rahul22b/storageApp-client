@@ -4,8 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { loginWithGoogle, sendOtp} from "./api/authApi";
 import { registerUser } from "./api/userApi";
 import toast from "react-hot-toast";
-// import ParticlesBackground from "./components/ParticlesBackground";
-
+   
 const Register = () => {
   const [formData, setFormData] = useState({
     name: "",

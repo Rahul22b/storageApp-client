@@ -191,7 +191,7 @@ const [deleteFileMutation] = useDeleteFileMutation();
 
   async function getsignedUrl(item) {
     return fetch(
-      `${import.meta.env.VITE_BACKEND_BASE_URL}/file/initiate/${dirId || " "}`,
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/file/initiate/${dirId || ""}`,
       {
         method: "POST",
         headers: {
@@ -199,7 +199,6 @@ const [deleteFileMutation] = useDeleteFileMutation();
           filename: item.name,
           filesize: item.size,
         },
-        body: item,
         credentials: "include",
       }
     )
@@ -269,8 +268,8 @@ const [deleteFileMutation] = useDeleteFileMutation();
       };
 
       xhr.send(item.file);
-    } catch (error) {
-      toast.error("Failed to initiate upload.");
+    } catch (err) {
+      toast.error(err?.message || "Failed to initiate upload.");
       setFilesList((prev) => prev.filter((f) => f.id !== item.id));
       setUploadItem(null);
       setTimeout(() => setErrorMessage(""), 3000);

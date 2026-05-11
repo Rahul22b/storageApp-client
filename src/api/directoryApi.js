@@ -254,7 +254,7 @@ deleteRecycledFile: builder.mutation({
 
 deleteRecycledDirectory: builder.mutation({
   query: ({ directoryId }) => ({
-    url: `/directory/restore/${directoryId}`,
+    url: `/directory/delete/${directoryId}`,
     method: "DELETE",
   }),
   invalidatesTags: (result, error, { parentDirId }) => [

@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Cloud, Lock, Users, Zap, Check, Menu, X } from 'lucide-react';
 import { motion,AnimatePresence } from "framer-motion";
 import ParticlesBackground from "./ParticlesBackground";
@@ -17,7 +17,7 @@ export default function GuestLandingPage() {
       setIndex((prev) => (prev + 1) % words.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [words.length]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -189,7 +189,7 @@ export default function GuestLandingPage() {
               Simple, Transparent Pricing
             </h2>
             <p className="text-xl text-gray-400">
-              Choose the plan that's right for you
+              Choose the plan that&apos;s right for you
             </p>
           </div>
 

@@ -24,7 +24,7 @@ function CreateDirectoryModal({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [onClose]);
 
   const handleContentClick = (e) => {
     e.stopPropagation();

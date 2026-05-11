@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Settings, Lock, Trash2, Power, Smartphone, HardDrive, Bell, Shield, LogOut, Eye, EyeOff, ChevronRight, Download, Upload, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function StorageSettings() {

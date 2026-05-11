@@ -129,7 +129,7 @@ export default function RecycleBin() {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : data?.length === 0 ? (
+        ) : files.length === 0 && directories.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400">
             <Trash2 className="w-20 h-20 mb-4 opacity-30" />
             <p className="text-lg">Recycle bin is empty</p>

@@ -1,3 +1,4 @@
+/* eslint-env node */
 const val=true;
 
 if(val){
